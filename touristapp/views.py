@@ -8,7 +8,7 @@ import mysql.connector
 import constants
 import json
 import configs.settings
-
+from django.http import HttpResponse
 
 cnx = mysql.connector.connect(user='akoposijboholst', password='HouseBoholst16', host='127.0.0.1', database='tourista')
 if cnx.is_connected():
@@ -39,8 +39,66 @@ def AddPackage(request):
 	return render(request, 'addpackageabout.html')
 
 def ApiAuthenticate(request):
-	email = request.POST.get('email')
-	return HttpResponse("Authenticate")
+	userId = request.GET.get('userId')
+	tourGuide = request.GET.get('tourGuide')
+
+	statement = ""
+
+	if tourGuide == 'True':
+		statement = "SELECT * FROM TOUR_GUIDE_PROFILE WHERE userId = '" + userId + "';"; 
+
+	elif tourGuide == 'False':
+		statement = "SELECT * FROM USER WHERE userId = '" + userId  + "';"
+
+	cursor = cnx.cursor(buffered=True)
+	data = {}
+
+	try:
+		cursor.execute(statement)
+
+		if tourGuide == 'True':
+			for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId, guideId, ratings, PROFILE_DESCRIPTION, streetAddress, city,  country, zipCode, province, priority) in cursor:
+				data = {
+					"userId": userId,
+					"firstName":firstName,
+					"lastName":lastName,
+					"birthday":birthday.strftime('%Y-%m-%d'),
+					"EMAIL":EMAIL,
+					"contactNumber":contactNumber,
+					"facebookId":facebookId,
+					"guideId":guideId,
+					"ratings":ratings,
+					"PROFILE_DESCRIPTION":PROFILE_DESCRIPTION,
+					"streetAddress":streetAddress,
+					"city":city,
+					"country":country,
+					"zipCode":zipCode,
+					"province":province,
+					"priority":priority
+				}
+				cursorB = cnx.cursor(buffered=True)
+				statement2 = "SELECT * FROM GUIDE_LANGUAGES WHERE userId = '" + userId + "';"
+				cursorB.execute(statement2)
+				for (guideId, language) in cursorB:
+					data["language"].append(language)
+
+		elif tourGuide == 'False':
+			for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId) in cursor:
+				data = {
+					"userId": userId,
+					"firstName":firstName,
+					"lastName":lastName,
+					"birthday":birthday.strftime('%Y-%m-%d'),
+					"EMAIL":EMAIL,
+					"contactNumber":contactNumber,
+					"facebookId":facebookId
+				}
+
+
+	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		return HttpResponse(e)
+
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 @csrf_exempt
 def AddSpot(request):
@@ -215,7 +273,6 @@ def PostFriends(request):
 	cnx.commit()
 	return HttpResponse("202")	
 
-
 @csrf_exempt
 def AddRatingToTourGuideAndPackage(request):
 	obj = json.loads(request.body)
@@ -247,8 +304,6 @@ def AddRatingToTourGuideAndPackage(request):
 
 	cnx.commit()
 	return HttpResponse("202")	
-
-
 
 @csrf_exempt
 def CreateTravelAgency(request):
@@ -312,7 +367,7 @@ def BookPackage(request):
 				"," + constants.TOUR_TRANSACTION[6]+
 				") VALUES(%s,%s,%s,%s,%s,%s,%s)")
 
-	assign_tg = (tourTransactionId,'TG-0e5ef52a5dfd4ffca4fe')
+	assign_tg = (tourTransactionId,'TG-fqjGxEdbTRO8ufQRumkbaBk3Xg02')
 	assign_tg_statement = ("INSERT INTO GUIDE_PACKAGE VALUES(%s, %s)"
 		)
 
@@ -596,17 +651,61 @@ def GetFriendsActivity(request):
 	
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
+def GetImage(request):
+	image_data = open(configs.settings.BASE_DIR + "\\touristapp\static\pic1.jpg", "rb").read()
+	return HttpResponse(image_data, content_type="image/jpg")
 
-def GetUser(request):
-	userId = request.GET.get(constants.USER[0])
-	userType = request.GET.get('userType')
+@csrf_exempt
+def CreateCustomPackage(request):
+	package = json.loads(request.body)
 
-	if userType == 'TOUR_GUIDE':
-		query = "SELECT * FROM RETURN_TOUR_GUIDE_DETAILS WHERE userId='" + userId + "';"
+	packageIdTemp = str(uuid.uuid4()).split("-")
 
-		try:
-			cursor = cnx.cursor(buffered=True)
-			cursor.execute(query)
-		except (MySQLdb.Error, MySQLdb.Warning) as e:
-			return HttpResponse(e)
-	
+	packageId = packageIdTemp[0]
+	userId = package['userId']
+	packageName = package[constants.PACKAGE[1]]
+	payment = 0
+	numOfTGNeeded = package[constants.PACKAGE[4]]
+
+	cursor = cnx.cursor(buffered=True)
+	new_package = (packageId, packageName, userId, payment, numOfTGNeeded)
+	new_package_statement = ("INSERT INTO CUSTOM_PACKAGE"
+							"("+constants.PACKAGE[0]+ ','+constants.PACKAGE[1]+', userId'+','+constants.PACKAGE[3]+','
+							""+constants.PACKAGE[4]+')'
+							"VALUES (%s,%s,%s,%s,%s)"
+							)
+
+	try:
+		cursor.execute(new_package_statement, new_package)
+
+	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		return HttpResponse(e)
+
+	cnx.commit()
+	return HttpResponse('200')
+
+def GetMyCustomPackageTransactions(request):
+	userId = request.GET.get('userId')
+
+	statement = "SELECT * FROM return_custom_transaction WHERE userId = " + "'" + userId + "'"
+
+	cursor = cnx.cursor(buffered=True)
+	try:
+		cursor.execute(statement)
+		custom_package = []
+		for(userId, tourTransactionId, packageId, packageName, reserveDate, tourDate, status, payment) in cursor:
+			curstom_package.append({
+				'userId': userId,
+				'tourTransactionId': tourTransactionId,
+				'packageId': packageId,
+				'packageName': packageName,
+				'reserveDate': reserveDate,
+				'tourDate': tourDate,
+				'status': status,
+				'payment': payment
+				})
+	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		return HttpResponse(e)
+
+	cnx.commit()
+	return HttpResponse('200')

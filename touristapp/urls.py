@@ -26,5 +26,9 @@ urlpatterns = [
     url(r'^api/get-confirm-transaction', views.GetConfirmPackageTG, name='get-confirm-transaction'),
     url(r'^api/post-friends', views.PostFriends, name='post-friends'),
     url(r'^api/add-rating-to-tour-guide-and-package', views.AddRatingToTourGuideAndPackage, name='add-rating-to-tour-guide-and-package'),
-    url(r'^api/get-friends-activity', views.GetFriendsActivity, name='get-friends-activity')
+    url(r'^api/get-friends-activity', views.GetFriendsActivity, name='get-friends-activity'),
+    url(r'^api/get-image', views.GetImage, name='get-image'),
+    url(r'^api/create-custom-package', views.CreateCustomPackage, name='create-custom-package'),
+    url(r'^api/get-custom-package-tours', views.GetMyCustomPackageTransactions, name='get-custom-package-tours')
+    
 ]
