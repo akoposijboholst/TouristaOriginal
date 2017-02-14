@@ -173,26 +173,28 @@ def CreatePackage(request):
 @csrf_exempt
 def AddSpotToPackage(request):
 	package = json.loads(request.body)
-	#KULANG PA KAAYO NI
-	#DAPAT ANG I SEND JUD ANI KAY JSON NA
-	packageId = request.POST.get(constants.ITINERARY_DETAILS[0])
-	spotId = request.POST.get(constants.ITINERARY_DETAILS[1])
-	time = request.POST.get(constants.ITINERARY_DETAILS[2])
-	description = request.POST.get(constants.ITINERARY_DETAILS[3])
-	chronology = request.POST.get(constants.ITINERARY_DETAILS[4])
 
 	cursor = cnx.cursor(buffered=True)
-	add_to_package = (packageId, spotId, time, description, chronology)
-	add_to_package_statement = ("INSERT INTO ITINERARY_DETAILS"
-								"("+constants.ITINERARY_DETAILS[0]+','+constants.ITINERARY_DETAILS[1]+','+constants.ITINERARY_DETAILS[2]+','
-								""+constants.ITINERARY_DETAILS[3]+','+constants.ITINERARY_DETAILS[4]+')'
-								"VALUES (%s,%s,%s,%s,%s)"
-								)
 
-	try:
-		cursor.execute(add_to_package, add_to_package_statement)
-	except (MySQLdb.Error, MySQLdb.Warning) as e:
-		return HttpResponse(e)
+	for spot in package:
+		packageId = spot[constants.ITINERARY_DETAILS[0]]
+		spotId = spot[constants.ITINERARY_DETAILS[1]]
+		startTime = spot[constants.ITINERARY_DETAILS[2]]
+		description = spot[constants.ITINERARY_DETAILS[3]]
+		chronology = spot[constants.ITINERARY_DETAILS[4]]
+		endTime = spot[constants.ITINERARY_DETAILS[5]]
+
+		add_to_package = (packageId, spotId, startTime, description, chronology, endTime)
+		add_to_package_statement = ("INSERT INTO ITINERARY_DETAILS"
+									"("+constants.ITINERARY_DETAILS[0]+','+constants.ITINERARY_DETAILS[1]+','+constants.ITINERARY_DETAILS[2]+','
+									""+constants.ITINERARY_DETAILS[3]+','+constants.ITINERARY_DETAILS[4]+','+constants.ITINERARY_DETAILS[5]+')'
+									"VALUES (%s,%s,%s,%s,%s,%s)"
+									)
+
+		try:
+			cursor.execute(add_to_package_statement, add_to_package)
+		except (MySQLdb.Error, MySQLdb.Warning) as e:
+			return HttpResponse(e)
 
 	cnx.commit()
 	return HttpResponse('200')
@@ -351,7 +353,7 @@ def BookPackage(request):
 	userId = bookpackage[constants.TOUR_TRANSACTION[1]]
 	packageId = bookpackage[constants.TOUR_TRANSACTION[2]]
 	reserveDate = (datetime.datetime.strptime(bookpackage[constants.TOUR_TRANSACTION[3]], '%Y-%m-%d').date()).isoformat()
-	tourDate = bookpackage[constants.TOUR_TRANSACTION[4]]
+	tourDate = (datetime.datetime.strptime(bookpackage[constants.TOUR_TRANSACTION[4]], '%Y-%m-%d').date()).isoformat()
 	numOfPeople = bookpackage[constants.TOUR_TRANSACTION[5]]
 	status = bookpackage[constants.TOUR_TRANSACTION[6]]
 
@@ -367,6 +369,8 @@ def BookPackage(request):
 				"," + constants.TOUR_TRANSACTION[6]+
 				") VALUES(%s,%s,%s,%s,%s,%s,%s)")
 
+	print insert_new_tourtransaction_statement
+	
 	assign_tg = (tourTransactionId,'TG-fqjGxEdbTRO8ufQRumkbaBk3Xg02')
 	assign_tg_statement = ("INSERT INTO GUIDE_PACKAGE VALUES(%s, %s)"
 		)
@@ -708,4 +712,8 @@ def GetMyCustomPackageTransactions(request):
 		return HttpResponse(e)
 
 	cnx.commit()
+	return HttpResponse('200')
+
+def GetAllPackage(request):
+
 	return HttpResponse('200')

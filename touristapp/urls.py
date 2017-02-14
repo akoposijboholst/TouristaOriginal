@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^api/create-travel-agency', views.CreateTravelAgency, name='create-travel-agency'),
     url(r'^api/add-spot', views.AddSpot, name='add-spot'),
     url(r'^api/create-package', views.CreatePackage, name='create-package'),
-    url(r'^api/add-to-itinerary-details', views.AddSpotToPackage, name='add-spot-to-package'),
+    url(r'^api/add-to-itinerary-details', views.AddSpotToPackage, name='add-to-itinerary-details'),
     url(r'^api/book-package', views.BookPackage, name='book-package'),
     url(r'^api/get-best-tours', views.GetBestTours, name='get-best-tours'),
     url(r'^api/get-featured-spots', views.GetFeaturedSpots, name='get-featured-spots'),
@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^api/get-friends-activity', views.GetFriendsActivity, name='get-friends-activity'),
     url(r'^api/get-image', views.GetImage, name='get-image'),
     url(r'^api/create-custom-package', views.CreateCustomPackage, name='create-custom-package'),
-    url(r'^api/get-custom-package-tours', views.GetMyCustomPackageTransactions, name='get-custom-package-tours')
+    url(r'^api/get-custom-package-tours', views.GetMyCustomPackageTransactions, name='get-custom-package-tours'),
+    url(r'^api/get-all-package', views.GetAllPackage, name='get-all-package')
     
 ]
