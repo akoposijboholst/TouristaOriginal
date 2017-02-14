@@ -31,5 +31,6 @@ urlpatterns = [
     url(r'^api/get-friends-activity', touristapp.views.GetFriendsActivity, name='get-friends-activity'),
     url(r'^api/get-image', touristapp.views.GetImage, name='get-image'),
     url(r'^api/create-custom-package', touristapp.views.CreateCustomPackage, name='create-custom-package'),
-    url(r'^api/get-custom-package-tours', touristapp.views.GetMyCustomPackageTransactions, name='get-custom-package-tours')
+    url(r'^api/get-custom-package-tours', touristapp.views.GetMyCustomPackageTransactions, name='get-custom-package-tours'),
+    url(r'^api/get-all-package', touristapp.views.GetAllPackage, name='get-all-package')
 ]

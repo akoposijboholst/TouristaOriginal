@@ -8,6 +8,7 @@ import mysql.connector
 import constants
 import json
 import configs.settings
+import requests
 from django.http import HttpResponse
 
 cnx = mysql.connector.connect(user='akoposijboholst', password='HouseBoholst16', host='127.0.0.1', database='tourista')
@@ -387,14 +388,14 @@ def GetBookedPackages(request):
 	userId = request.GET.get(constants.USER[0])
 	status = request.GET.get(constants.TOUR_TRANSACTION[6])
 
-	get_booked_packages_statement = "SELECT * FROM return_tourist_transaction WHERE userId='"+userId+"' AND status='"+status+"';"
+	get_booked_packages_statement = "SELECT * FROM return_tourist_transaction_with_package_details WHERE userId='"+userId+"' AND status='"+status+"';"
 	cursor = cnx.cursor(buffered=True)
 
 	data = []
 
 	try:
 		cursor.execute(get_booked_packages_statement)
-		for (userId, tourTransactionId, packageId, packageName, reserveDate, tourDate, status, payment) in cursor:
+		for (userId, tourTransactionId, packageId, packageName, reserveDate, tourDate, status, payment, description, rating, numOfSpots, duration, travelAgencyId, agencyName) in cursor:
 			view_spot_itinerary_statement = "select * from return_spot_itinerary where packageId = '" + packageId + "' order by chronology asc"
 			cursorB = cnx.cursor(buffered=True)
 			cursorB.execute(view_spot_itinerary_statement)
@@ -414,7 +415,6 @@ def GetBookedPackages(request):
 					constants.RETURN_SPOT_ITINERARY[7]: LONGITUDE,
 					constants.RETURN_SPOT_ITINERARY[8]:	LATITUDE
 				})
-				print "entered"
 
 			data.append({
 				constants.RETURN_TOURIST_TRANSACTION[0]: userId,
@@ -425,7 +425,13 @@ def GetBookedPackages(request):
 				constants.RETURN_TOURIST_TRANSACTION[5]: tourDate.strftime('%Y-%m-%d'),
 				constants.RETURN_TOURIST_TRANSACTION[6]: status,
 				constants.RETURN_TOURIST_TRANSACTION[7]: payment,
-				constants.RETURN_TOUR_PACKAGES[9]: spot_data
+				constants.RETURN_TOUR_PACKAGES[9]: spot_data,
+				"description": description,
+				"rating": rating,
+				"numOfSpots": numOfSpots,
+				"duration": duration,
+				"travelAgencyId": travelAgencyId,
+				"agencyName": agencyName
 			})
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
 		return HttpResponse(e)
@@ -718,4 +724,26 @@ def GetMyCustomPackageTransactions(request):
 
 def GetAllPackage(request):
 
-	return HttpResponse('200')
+	return HttpResponse(NotifyTourGuide())
+
+def NotifyTourGuide():
+	data = {
+		"to": "/topics/news",
+		"data": {
+			"message": "This is a Firebase Cloud Messaging Topic Message!",
+		}
+	}
+
+	headers = {
+		"Content-Type":"application/json"
+	}
+
+	auth = "key=AAAAzfXo2LM:APA91bFZ6Adgvob0lEKkcv1NxEfDtZIhenSAYnmtqpADx_sJKxeYBSgygy_pYP03Pi643cVjHZsGq5SjGz26TOdqKsoI5SqKmN9vv96udPrV97TyVdKUHCCadOdqmaXmuvgf8OsV11gdtqQb_E9go_QZaXuLfuteMg"
+
+	# request = Request(url, urlencode(data).encode(), headers)
+	# json = urlopen(request).read().decode()
+	response = requests.post('https://fcm.googleapis.com/fcm/send', data=data, headers=headers, auth=auth)
+
+	print response.status_code
+
+	return 200

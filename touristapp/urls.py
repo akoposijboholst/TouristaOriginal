@@ -31,5 +31,6 @@ urlpatterns = [
     url(r'^api/create-custom-package', views.CreateCustomPackage, name='create-custom-package'),
     url(r'^api/get-custom-package-tours', views.GetMyCustomPackageTransactions, name='get-custom-package-tours'),
     url(r'^api/get-all-package', views.GetAllPackage, name='get-all-package')
+    # url(r'^api/get-all-package', views.NotifyTourGuide, name='get-all-package')
     
 ]
