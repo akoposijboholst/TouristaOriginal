@@ -414,6 +414,7 @@ def GetBookedPackages(request):
 					constants.RETURN_SPOT_ITINERARY[7]: LONGITUDE,
 					constants.RETURN_SPOT_ITINERARY[8]:	LATITUDE
 				})
+				print "entered"
 
 			data.append({
 				constants.RETURN_TOURIST_TRANSACTION[0]: userId,
@@ -423,7 +424,8 @@ def GetBookedPackages(request):
 				constants.RETURN_TOURIST_TRANSACTION[4]: reserveDate.strftime('%Y-%m-%d'),
 				constants.RETURN_TOURIST_TRANSACTION[5]: tourDate.strftime('%Y-%m-%d'),
 				constants.RETURN_TOURIST_TRANSACTION[6]: status,
-				constants.RETURN_TOURIST_TRANSACTION[7]: payment
+				constants.RETURN_TOURIST_TRANSACTION[7]: payment,
+				constants.RETURN_TOUR_PACKAGES[9]: spot_data
 			})
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
 		return HttpResponse(e)
