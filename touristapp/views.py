@@ -9,6 +9,8 @@ import constants
 import json
 import configs.settings
 import requests
+import urllib
+import urllib2
 from django.http import HttpResponse
 
 cnx = mysql.connector.connect(user='akoposijboholst', password='HouseBoholst16', host='127.0.0.1', database='tourista')
@@ -17,7 +19,7 @@ if cnx.is_connected():
 
 @csrf_exempt
 def index(request):
-	return render(request, 'index.html')
+	return render(request, 'home.html')
 
 def SignIn(request):
 	return render(request, 'signin.html')
@@ -39,17 +41,24 @@ def AddPackage(request):
 
 	return render(request, 'addpackageabout.html')
 
+
+@csrf_exempt
 def ApiAuthenticate(request):
-	userId = request.GET.get('userId')
-	tourGuide = request.GET.get('tourGuide')
+	userId = request.POST.get('userId')
+	userType = request.POST.get('type')
 
 	statement = ""
 
-	if tourGuide == 'True':
+	if userType == 'TG':
 		statement = "SELECT * FROM TOUR_GUIDE_PROFILE WHERE userId = '" + userId + "';"; 
 
-	elif tourGuide == 'False':
+	elif userType == 'T':
 		statement = "SELECT * FROM USER WHERE userId = '" + userId  + "';"
+
+	elif userType == 'TA':
+		email = request.POST.get('email')
+		password = request.POST.get('password')
+		statement = "SELECT * FROM travel_agency WHERE email = '" + email  + "' and password = '" + password + "';"
 
 	cursor = cnx.cursor(buffered=True)
 	data = {}
@@ -57,7 +66,7 @@ def ApiAuthenticate(request):
 	try:
 		cursor.execute(statement)
 
-		if tourGuide == 'True':
+		if userType == 'TG':
 			for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId, guideId, ratings, PROFILE_DESCRIPTION, streetAddress, city,  country, zipCode, province, priority) in cursor:
 				data = {
 					"userId": userId,
@@ -83,7 +92,7 @@ def ApiAuthenticate(request):
 				for (guideId, language) in cursorB:
 					data["language"].append(language)
 
-		elif tourGuide == 'False':
+		elif userType == 'T':
 			for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId) in cursor:
 				data = {
 					"userId": userId,
@@ -93,6 +102,19 @@ def ApiAuthenticate(request):
 					"EMAIL":EMAIL,
 					"contactNumber":contactNumber,
 					"facebookId":facebookId
+				}
+
+		elif userType == 'TA':
+			for (travelAgencyId, agencyName, streetAddress, city, country, zipCode, contactNumber, email, password) in cursor:
+				data = {
+					'travelAgencyId': travelAgencyId,
+					'agencyName': agencyName,
+					'streetAddress': streetAddress,
+					'city': city,
+					'country': country,
+					'zipCode': zipCode,
+					'contactNumber': contactNumber,
+					'email': email
 				}
 
 
@@ -390,14 +412,40 @@ def GetBookedPackages(request):
 
 	get_booked_packages_statement = "SELECT * FROM return_tourist_transaction_with_package_details WHERE userId='"+userId+"' AND status='"+status+"';"
 	cursor = cnx.cursor(buffered=True)
+	cursorB = cnx.cursor(buffered=True)
+	cursorC = cnx.cursor(buffered=True)
 
 	data = []
 
 	try:
 		cursor.execute(get_booked_packages_statement)
 		for (userId, tourTransactionId, packageId, packageName, reserveDate, tourDate, status, payment, description, rating, numOfSpots, duration, travelAgencyId, agencyName) in cursor:
+			guide_details = []
+			if status == 'Success':
+				statement = "SELECT * from tour_guide_profile where guideId in (SELECT guideId from guide_package where tourTransactionId = '" + tourTransactionId + "');"
+				cursorC.execute(statement)
+				for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId, guideId, ratings, PROFILE_DESCRIPTION, streetAddress, city,  country, zipCode, province, priority) in cursorC:
+					guide_details.append({
+						"userId": userId,
+						"firstName":firstName,
+						"lastName":lastName,
+						"birthday":birthday.strftime('%Y-%m-%d'),
+						"EMAIL":EMAIL,
+						"contactNumber":contactNumber,
+						"facebookId":facebookId,
+						"guideId":guideId,
+						"ratings":ratings,
+						"PROFILE_DESCRIPTION":PROFILE_DESCRIPTION,
+						"streetAddress":streetAddress,
+						"city":city,
+						"country":country,
+						"zipCode":zipCode,
+						"province":province,
+						"priority":priority
+					})
+
+
 			view_spot_itinerary_statement = "select * from return_spot_itinerary where packageId = '" + packageId + "' order by chronology asc"
-			cursorB = cnx.cursor(buffered=True)
 			cursorB.execute(view_spot_itinerary_statement)
 
 			counter = 0;
@@ -428,10 +476,11 @@ def GetBookedPackages(request):
 				constants.RETURN_TOUR_PACKAGES[9]: spot_data,
 				"description": description,
 				"rating": rating,
-				"numOfSpots": numOfSpots,
+				"numOfSpots": counter,
 				"duration": duration,
 				"travelAgencyId": travelAgencyId,
-				"agencyName": agencyName
+				"agencyName": agencyName,
+				"guideDetails": guide_details
 			})
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
 		return HttpResponse(e)
@@ -456,19 +505,18 @@ def ConfirmByTourGuide(request):
 	cnx.commit()
 
 	return HttpResponse("200")
-
-
+	
 def GetBestTours(request):
 	view_tourpackages_statement = "select * from return_tour_packages order by rating desc limit 10;"
 
 	cursor = cnx.cursor(buffered=True)
+	cursorB = cnx.cursor(buffered=True)
 	data = []
 
 	try:
 		cursor.execute(view_tourpackages_statement)
 		for (packageID, packageName, description, payment, rating, numOfSpots, duration, travelAgencyId, agencyName) in cursor:
 			view_spot_itinerary_statement = "select * from return_spot_itinerary where packageId = '" + packageID + "' order by chronology asc"
-			cursorB = cnx.cursor(buffered=True)
 			cursorB.execute(view_spot_itinerary_statement)
 
 			counter = 0;
@@ -515,7 +563,7 @@ def GetFeaturedSpots(request):
 
 	try:
 		cursor.execute(view_spots_statement)
-		for (spotId, spotName, streetAddress, city, country, contactNumber, website, LONGITUDE, LATITUDE, ratings, description, closing, opening, zipCode) in cursor:
+		for (spotId, spotName, streetAddress, city, country, contactNumber, website, LONGITUDE, LATITUDE, ratings, description, closing, opening, zipCode, price) in cursor:
 				data.append({
 					constants.SPOT[0]: spotId,
 					constants.SPOT[1]: spotName,
@@ -530,13 +578,43 @@ def GetFeaturedSpots(request):
 					constants.SPOT[10]: ratings,
 					constants.SPOT[11]: description,
 					constants.SPOT[12]: closing,
-					constants.SPOT[13]: opening
+					constants.SPOT[13]: opening,
+					'price': price
 					})
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
 		return HttpResponse(e)
 
 	#kulang pani para makuha jud..
 
+	return HttpResponse(json.dumps(data), content_type="application/json")
+
+def GetHistoryPackageTG(request):
+
+	guideId = request.GET.get('guideId')
+	view_requestpackage_tg = "SELECT * FROM RETURN_GUIDE_TRANSACTION WHERE guideId='" + guideId + "' AND status='Done';"
+	
+	cursor = cnx.cursor(buffered=True)
+
+	data = []
+	try:
+		cursor.execute(view_requestpackage_tg)
+		for (tourTransactionId, userId, packageId, reserveDate, tourDate, numOfPeople, status, guideId, packageName) in cursor:
+			data.append({
+				constants.TOUR_TRANSACTION[0]: tourTransactionId,
+				constants.TOUR_TRANSACTION[1]: userId,
+				constants.TOUR_TRANSACTION[2]: packageId,
+				constants.TOUR_TRANSACTION[3]: reserveDate.strftime('%Y-%m-%d'),
+				constants.TOUR_TRANSACTION[4]: tourDate.strftime('%Y-%m-%d'),
+				constants.TOUR_TRANSACTION[5]: numOfPeople,
+				constants.TOUR_TRANSACTION[6]: status,
+				constants.GUIDE_PACKAGE[1]: guideId,
+				constants.RETURN_TOUR_PACKAGES[1]: packageName
+				})
+
+	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		return HttpResponse(e)
+
+	cursor.close()
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def GetRequestPackageTG(request):
@@ -605,6 +683,7 @@ def GetFriendsActivity(request):
 
 	cursor = cnx.cursor(buffered=True)
 	new_cursor = cnx.cursor(buffered=True)
+	cursorB = cnx.cursor(buffered=True)
 
 	data = []
 	try:
@@ -614,7 +693,6 @@ def GetFriendsActivity(request):
 			new_cursor.execute(view_tour_package)
 
 			view_spot_itinerary_statement = "select * from return_spot_itinerary where packageId = '" + packageId + "' order by chronology asc"
-			cursorB = cnx.cursor(buffered=True)
 			cursorB.execute(view_spot_itinerary_statement)
 
 			counter = 0;
@@ -727,23 +805,37 @@ def GetAllPackage(request):
 	return HttpResponse(NotifyTourGuide())
 
 def NotifyTourGuide():
-	data = {
+
+	url = 'https://fcm.googleapis.com/fcm/send'
+	values = {
 		"to": "/topics/news",
 		"data": {
-			"message": "This is a Firebase Cloud Messaging Topic Message!",
+			"notifType": "Booked",
+			"userId": "4WsRc7IsriQIyuA7zraN24Cgcl12"
+		},
+		# ,
+		"notification": {
+			"title": "Successfully booked a trip!",
+			"body": "Push"
 		}
 	}
 
-	headers = {
-		"Content-Type":"application/json"
-	}
+	data = json.dumps(values)
 
-	auth = "key=AAAAzfXo2LM:APA91bFZ6Adgvob0lEKkcv1NxEfDtZIhenSAYnmtqpADx_sJKxeYBSgygy_pYP03Pi643cVjHZsGq5SjGz26TOdqKsoI5SqKmN9vv96udPrV97TyVdKUHCCadOdqmaXmuvgf8OsV11gdtqQb_E9go_QZaXuLfuteMg"
+	server_key = 'AAAAzfXo2LM:APA91bFZ6Adgvob0lEKkcv1NxEfDtZIhenSAYnmtqpADx_sJKxeYBSgygy_pYP03Pi643cVjHZsGq5SjGz26TOdqKsoI5SqKmN9vv96udPrV97TyVdKUHCCadOdqmaXmuvgf8OsV11gdtqQb_E9go_QZaXuLfuteMg'
+
+	key = 'key='+server_key
+	headers = {
+		'Authorization':key,
+		'Content-Type':'application/json'
+	}
 
 	# request = Request(url, urlencode(data).encode(), headers)
 	# json = urlopen(request).read().decode()
-	response = requests.post('https://fcm.googleapis.com/fcm/send', data=data, headers=headers, auth=auth)
 
-	print response.status_code
+	req = urllib2.Request(url, data, headers)
+	response = urllib2.urlopen(req)
+	the_page = response.read()
+	# response = requests.post('https://fcm.googleapis.com/fcm/send', headers=headers, data=data)
 
 	return 200
