@@ -6,6 +6,7 @@ import touristapp.views
 urlpatterns = [
     url(r'^$', include('touristapp.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^landing', touristapp.views.LandingPage, name='landing-page'),
     url(r'api/authenticate', touristapp.views.ApiAuthenticate, name='authenticate'),
     url(r'^api/create-user', touristapp.views.CreateUser, name='create-user'),
     url(r'^api/create-travel-agency', touristapp.views.CreateTravelAgency, name='create-travel-agency'),

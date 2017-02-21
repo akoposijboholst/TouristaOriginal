@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+	<title>Tourista</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+	<link rel="shortcut icon" href="{% static 'assets/images/tourista_logo.png' %}">
+	
+	<link rel="stylesheet" media="screen" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,700">
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}">
+
+	<!-- Custom styles for our template -->
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap-theme.css' %}" media="screen" >
+	<link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/css/bootstrap.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/css/bootstrap.min.css' %}">
+</head>
+<body>
+	<div class="navbar navbar-fixed-top" style="background-color: #000;">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+				<a class="navbar-brand" href="home.html"><img src="{% static 'assets/images/tourista_logo.png' %}" alt="Tourista" style="float:left;"><p style="float:right; margin-left: 10px;color: #fff;" id="text-regular">Tourista</p></a>	
+			</div>
+			<div class="navbar-collapse collapse">
+				<div class="nav navbar-nav pull-right">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" id="text-regular" style="color: #fff;">Jimbofer Travels
+							<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li id="text-regular"><a href="#">Profile</a></li>
+							<li id="text-regular"><a href="#">Settings</a></li>
+							<li id="text-regular"><a href="#">Logout</a></li>
+						</ul>
+					</li>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="navbar" style="margin: 0;">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+				<a class="navbar-brand" href="home.html"><img src="{% static 'assets/images/tourista_logo.png' %}" alt="Tourista" style="float:left;"><p style="float:right; margin-left: 10px;color: #fff;" id="text-regular">Tourista</p></a>	
+			</div>
+			<div class="navbar-collapse collapse">
+				<div class="nav navbar-nav pull-right">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" id="text-regular" style="color: #fff;">Jimbofer Travels
+							<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li id="text-regular"><a href="#">Profile</a></li>
+							<li id="text-regular"><a href="#">Settings</a></li>
+							<li id="text-regular"><a href="#">Logout</a></li>
+						</ul>
+					</li>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="navbar" id="below-header">
+		<div class="container">
+			<div class="navbar-collapse collapse">
+				<ul class="nav navbar-nav pull-left">
+					<li class="active"><a href="#" style="color: black;" id="text-regular">MY TOURS</a></li>
+					<li><a href="about.html" style="color: black;" id="text-regular">TRANSACTIONS</a></li>
+				</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{{ hehe }}
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+</html>

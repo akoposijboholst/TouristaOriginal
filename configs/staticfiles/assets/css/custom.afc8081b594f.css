@@ -53,27 +53,27 @@
 
 @font-face {
     font-family: poppinsbold;
-    src: url(../fonts/poppins/Poppins-Bold.ttf);
+    src: url("../fonts/poppins/Poppins-Bold.2f55e0d4b3f9.ttf");
 }
 
 @font-face {
     font-family: poppinslight;
-    src: url(../fonts/poppins/Poppins-Light.ttf);
+    src: url("../fonts/poppins/Poppins-Light.b2b23d250401.ttf");
 }
 
 @font-face {
     font-family: poppinsmedium;
-    src: url(../fonts/poppins/Poppins-Medium.ttf);
+    src: url("../fonts/poppins/Poppins-Medium.5bfdccef7951.ttf");
 }
 
 @font-face {
     font-family: poppinsregular;
-    src: url(../fonts/poppins/Poppins-Regular.ttf);
+    src: url("../fonts/poppins/Poppins-Regular.e212f8408696.ttf");
 }
 
 @font-face {
     font-family: poppinssemibold;
-    src: url(../fonts/poppins/Poppins-SemiBold.ttf);
+    src: url("../fonts/poppins/Poppins-SemiBold.f018d93c4bd9.ttf");
 }
 
 .left-container{

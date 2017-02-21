@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^landing', views.LandingPage, name='landing-page'),
     url(r'^api/authenticate', views.ApiAuthenticate, name='authenticate'),
     url(r'^api/create-user', views.CreateUser, name='create-user'),
     url(r'^api/create-travel-agency', views.CreateTravelAgency, name='create-travel-agency'),
