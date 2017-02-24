@@ -88,11 +88,11 @@ def AddPackage(request):
 
 	return render(request, 'addpackageabout.html')
 
-
 @csrf_exempt
 def ApiAuthenticate(request):
-	userId = request.POST.get('userId')
-	userType = request.POST.get('type')
+	body = json.loads(request.body)
+	userId = body['userId']
+	userType = body['type']
 
 	statement = ""
 
@@ -108,13 +108,35 @@ def ApiAuthenticate(request):
 		statement = "SELECT * FROM travel_agency WHERE email = '" + email  + "' and password = '" + password + "';"
 
 	cursor = cnx.cursor(buffered=True)
+	cursorC = cnx.cursor(buffered=True)
+	cursorD = cnx.cursor(buffered=True)
 	data = {}
 
 	try:
 		cursor.execute(statement)
 
 		if userType == 'TG':
-			for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId, guideId, ratings, PROFILE_DESCRIPTION, streetAddress, city,  country, zipCode, province, priority) in cursor:
+			for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId, citizenship, photoUrl, guideId, ratings, PROFILE_DESCRIPTION, streetAddress, city, country, zipCode, province, priority, numAccept, numRequest) in cursor:
+				card = {}
+				cursorC.execute("SELECT accountNumber, cvv, expirationDate, creditCardEmail, creditCardPassword FROM card_details where userId='" + userId + "'")
+				for (accountNumber, cvv, expirationDate, creditCardEmail, creditCardPassword) in cursorC:
+					card = {
+						"accountNumber": accountNumber, 
+						"cvv":cvv, 
+						"expirationDateYear":expirationDate.strftime('%Y'),
+						"expirationDateMonth":expirationDate.strftime('%B'),
+						"expirationDateDay":expirationDate.strftime('%d'), 
+						"creditCardEmail":creditCardEmail, 
+						"creditCardPassword":creditCardPassword
+					}
+				cursorD.execute("SELECT * from guide_avg_ratings where guideId='"+guideId+"';")
+				rate = {}
+				for(guideId, acts_professionaly, isknowledgeable, rightpersonality) in cursorD:
+					rate = {
+						"acts_professionaly":str(acts_professionaly),
+						"isknowledgeable": str(isknowledgeable),
+						"rightpersonality": str(rightpersonality)
+					}
 				data = {
 					"userId": userId,
 					"firstName":firstName,
@@ -123,6 +145,8 @@ def ApiAuthenticate(request):
 					"EMAIL":EMAIL,
 					"contactNumber":contactNumber,
 					"facebookId":facebookId,
+					"citizenship": citizenship,
+					"photoUrl": photoUrl,
 					"guideId":guideId,
 					"ratings":ratings,
 					"PROFILE_DESCRIPTION":PROFILE_DESCRIPTION,
@@ -131,11 +155,24 @@ def ApiAuthenticate(request):
 					"country":country,
 					"zipCode":zipCode,
 					"province":province,
-					"priority":priority
+					"priority":priority,
+					"numAccept":numAccept,
+					"numRequest": numRequest,
+					"accountNumber": card["accountNumber"], 
+					"cvv":card["cvv"], 
+					"expirationDateYear":card["expirationDateYear"], 
+					"expirationDateMonth":card["expirationDateMonth"], 
+					"expirationDateDay":card["expirationDateDay"], 
+					"creditCardEmail":card["creditCardEmail"], 
+					"creditCardPassword":card["creditCardPassword"],
+					"acts_professionaly": rate["acts_professionaly"],
+					"isknowledgeable": rate["isknowledgeable"],
+					"rightpersonality": rate["rightpersonality"]
 				}
 				cursorB = cnx.cursor(buffered=True)
-				statement2 = "SELECT * FROM GUIDE_LANGUAGES WHERE userId = '" + userId + "';"
+				statement2 = "SELECT * FROM GUIDE_LANGUAGES WHERE guideId = '" + guideId + "';"
 				cursorB.execute(statement2)
+				data["language"] = []
 				for (guideId, language) in cursorB:
 					data["language"].append(language)
 
@@ -243,10 +280,16 @@ def CreatePackage(request):
 @csrf_exempt
 def AddSpotToPackage(request):
 	package = json.loads(request.body)
+	packageType = package['type']
+	table = ""
+	if packageType == 'NON-CUSTOM':
+		table = "ITINERARY_DETAILS"
+	elif packageType == 'CUSTOM':
+		table = "CUSTOM_ITINERARY_DETAILS"
 
 	cursor = cnx.cursor(buffered=True)
 
-	for spot in package:
+	for spot in package['itinerary']:
 		packageId = spot[constants.ITINERARY_DETAILS[0]]
 		spotId = spot[constants.ITINERARY_DETAILS[1]]
 		startTime = spot[constants.ITINERARY_DETAILS[2]]
@@ -255,7 +298,7 @@ def AddSpotToPackage(request):
 		endTime = spot[constants.ITINERARY_DETAILS[5]]
 
 		add_to_package = (packageId, spotId, startTime, description, chronology, endTime)
-		add_to_package_statement = ("INSERT INTO ITINERARY_DETAILS"
+		add_to_package_statement = ("INSERT INTO "+table+" "+
 									"("+constants.ITINERARY_DETAILS[0]+','+constants.ITINERARY_DETAILS[1]+','+constants.ITINERARY_DETAILS[2]+','
 									""+constants.ITINERARY_DETAILS[3]+','+constants.ITINERARY_DETAILS[4]+','+constants.ITINERARY_DETAILS[5]+')'
 									"VALUES (%s,%s,%s,%s,%s,%s)"
@@ -367,7 +410,7 @@ def AddRatingToTourGuideAndPackage(request):
 	value2 = (package_rating['packageId'], package_rating['rating'], package_rating['tourTransactionId'], package_rating['comments'])
 	insert_package_rating = ("INSERT INTO TOUR_PACKAGE_RATING"
 							"("+'packageId'+','+'rating'+','+'tourTransactionId'+','+'comments'+')'
-							"VALUS (%s, %s, %s, %s)"
+							"VALUES (%s, %s, %s, %s)"
 							)
 	try:
 		cursor.execute(insert_package_rating, value2)
@@ -411,8 +454,7 @@ def CreateTravelAgency(request):
 		return HttpResponse('200')
 
 	elif request.method == 'GET':
-		return render(request, 'signup.html')
-
+		return render(request, 'sign-up.html')
 
 @csrf_exempt
 def BookPackage(request):
@@ -426,10 +468,18 @@ def BookPackage(request):
 	tourDate = (datetime.datetime.strptime(bookpackage[constants.TOUR_TRANSACTION[4]], '%Y-%m-%d').date()).isoformat()
 	numOfPeople = bookpackage[constants.TOUR_TRANSACTION[5]]
 	status = bookpackage[constants.TOUR_TRANSACTION[6]]
+	bookType = bookpackage['type'] # CUSTOM OR NON-CUSTOM
 
 	cursor = cnx.cursor(buffered=True)
 	new_tour_transaction=(tourTransactionId,userId,packageId,reserveDate,tourDate,numOfPeople,status)
-	insert_new_tourtransaction_statement = ("INSERT INTO TOUR_TRANSACTION"
+	table = ""
+	if bookType == 'NON-CUSTOM':
+		table = 'TOUR_TRANSACTION'
+
+	elif bookType == 'CUSTOM':
+		table = 'TOUR_TRANSACTION_CUSTOM'
+
+	insert_new_tourtransaction_statement = ("INSERT INTO " + table + " " +
 				"(" + constants.TOUR_TRANSACTION[0]+
 				"," + constants.TOUR_TRANSACTION[1]+
 				"," + constants.TOUR_TRANSACTION[2]+
@@ -438,8 +488,6 @@ def BookPackage(request):
 				"," + constants.TOUR_TRANSACTION[5]+
 				"," + constants.TOUR_TRANSACTION[6]+
 				") VALUES(%s,%s,%s,%s,%s,%s,%s)")
-
-	print insert_new_tourtransaction_statement
 	
 	assign_tg = (tourTransactionId,'TG-fqjGxEdbTRO8ufQRumkbaBk3Xg02')
 	assign_tg_statement = ("INSERT INTO GUIDE_PACKAGE VALUES(%s, %s)"
@@ -462,7 +510,15 @@ def GetBookedPackages(request):
 	cursorB = cnx.cursor(buffered=True)
 	cursorC = cnx.cursor(buffered=True)
 
-	data = []
+	get_custom_packages_statement = "SELECT * FROM return_custom_tour_transaction WHERE userId='"+userId+"' AND status='"+status+"';"
+	cursor1 = cnx.cursor(buffered=True)
+	cursor2 = cnx.cursor(buffered=True)
+	cursor3 = cnx.cursor(buffered=True)
+
+	data = {
+		"non-custom":[],
+		"custom":[]
+		}
 
 	try:
 		cursor.execute(get_booked_packages_statement)
@@ -471,7 +527,7 @@ def GetBookedPackages(request):
 			if status == 'Success':
 				statement = "SELECT * from tour_guide_profile where guideId in (SELECT guideId from guide_package where tourTransactionId = '" + tourTransactionId + "');"
 				cursorC.execute(statement)
-				for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId, guideId, ratings, PROFILE_DESCRIPTION, streetAddress, city,  country, zipCode, province, priority) in cursorC:
+				for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId, citizenship, photoUrl, guideId, ratings, PROFILE_DESCRIPTION, streetAddress, city, country, zipCode, province, priority, numAccept, numReject) in cursorC:
 					guide_details.append({
 						"userId": userId,
 						"firstName":firstName,
@@ -511,7 +567,7 @@ def GetBookedPackages(request):
 					constants.RETURN_SPOT_ITINERARY[8]:	LATITUDE
 				})
 
-			data.append({
+			data["non-custom"].append({
 				constants.RETURN_TOURIST_TRANSACTION[0]: userId,
 				constants.RETURN_TOURIST_TRANSACTION[1]: tourTransactionId,
 				constants.RETURN_TOURIST_TRANSACTION[2]: packageId,
@@ -522,11 +578,74 @@ def GetBookedPackages(request):
 				constants.RETURN_TOURIST_TRANSACTION[7]: payment,
 				constants.RETURN_TOUR_PACKAGES[9]: spot_data,
 				"description": description,
-				"rating": rating,
+				"rating": 0,
 				"numOfSpots": counter,
-				"duration": duration,
+				"duration": 0,
 				"travelAgencyId": travelAgencyId,
 				"agencyName": agencyName,
+				"guideDetails": guide_details
+			})
+
+
+		cursor1.execute(get_custom_packages_statement)
+		for (tourTransactionId, userId, reserveDate, tourDate, numOfPeople, status, packageId, payment, numOfTGNeeded, numOfSpots, packageName) in cursor:
+			guide_details = []
+			if status == 'Success':
+				statement = "SELECT * from tour_guide_profile where guideId in (SELECT guideId from guide_package where tourTransactionId = '" + tourTransactionId + "');"
+				cursor3.execute(statement)
+				for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId, citizenship, photoUrl, guideId, ratings, PROFILE_DESCRIPTION, streetAddress, city, country, zipCode, province, priority, numAccept, numReject) in cursor3:
+					guide_details.append({
+						"userId": userId,
+						"firstName":firstName,
+						"lastName":lastName,
+						"birthday":birthday.strftime('%Y-%m-%d'),
+						"EMAIL":EMAIL,
+						"contactNumber":contactNumber,
+						"facebookId":facebookId,
+						"guideId":guideId,
+						"ratings":ratings,
+						"PROFILE_DESCRIPTION":PROFILE_DESCRIPTION,
+						"streetAddress":streetAddress,
+						"city":city,
+						"country":country,
+						"zipCode":zipCode,
+						"province":province,
+						"priority":priority
+					})
+
+
+			view_spot_itinerary_statement = "select * from return_custom_spot_itinerary where packageId = '" + packageId + "' order by chronology asc"
+			cursor2.execute(view_spot_itinerary_statement)
+
+			counter = 0;
+			spot_data = []
+			for (packageId, spotId, startTime, endTime, description, chronology, spotName, LONGITUDE, LATITUDE) in cursor2:
+				counter = ++counter
+				spot_data.append({
+					constants.RETURN_SPOT_ITINERARY[0]: packageId,
+					constants.RETURN_SPOT_ITINERARY[1]: spotId,
+					constants.RETURN_SPOT_ITINERARY[2]: startTime,
+					constants.RETURN_SPOT_ITINERARY[3]: description,
+					constants.RETURN_SPOT_ITINERARY[4]: chronology,
+					constants.RETURN_SPOT_ITINERARY[5]: spotName,
+					constants.RETURN_SPOT_ITINERARY[6]: endTime,
+					constants.RETURN_SPOT_ITINERARY[7]: LONGITUDE,
+					constants.RETURN_SPOT_ITINERARY[8]:	LATITUDE
+				})
+
+			data["custom"].append({
+				"tourTransactionId":tourTransactionId, 
+				"userId":userId, 
+				"reserveDate":reserveDate, 
+				"tourDate":tourDate, 
+				"numOfPeople":numOfPeople, 
+				"status":status, 
+				"packageId":packageId, 
+				"payment":payment, 
+				"numOfTGNeeded":numOfTGNeeded, 
+				"numOfSpots":counter, 
+				"packageName":packageName,
+				constants.RETURN_TOUR_PACKAGES[9]: spot_data,
 				"guideDetails": guide_details
 			})
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
@@ -635,17 +754,38 @@ def GetFeaturedSpots(request):
 
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
-def GetHistoryPackageTG(request):
-
+def GetTGPackage(request):
 	guideId = request.GET.get('guideId')
-	view_requestpackage_tg = "SELECT * FROM RETURN_GUIDE_TRANSACTION WHERE guideId='" + guideId + "' AND status='Done';"
+	status = request.GET.get('status')
+	view_requestpackage_tg = "SELECT * FROM RETURN_GUIDE_TRANSACTION WHERE guideId='" + guideId + "' AND status='" + status+"';"
 	
 	cursor = cnx.cursor(buffered=True)
+	cursorB = cnx.cursor(buffered=True)
 
 	data = []
 	try:
 		cursor.execute(view_requestpackage_tg)
 		for (tourTransactionId, userId, packageId, reserveDate, tourDate, numOfPeople, status, guideId, packageName) in cursor:
+
+			view_spot_itinerary_statement = "select * from return_spot_itinerary where packageId = '" + packageId + "' order by chronology asc"
+			cursorB.execute(view_spot_itinerary_statement)
+
+			counter = 0;
+			spot_data = []
+			for (packageId, spotId, startTime, endTime, description, chronology, spotName, LONGITUDE, LATITUDE) in cursorB:
+				counter = ++counter
+				spot_data.append({
+					constants.RETURN_SPOT_ITINERARY[0]: packageId,
+					constants.RETURN_SPOT_ITINERARY[1]: spotId,
+					constants.RETURN_SPOT_ITINERARY[2]: startTime,
+					constants.RETURN_SPOT_ITINERARY[3]: description,
+					constants.RETURN_SPOT_ITINERARY[4]: chronology,
+					constants.RETURN_SPOT_ITINERARY[5]: spotName,
+					constants.RETURN_SPOT_ITINERARY[6]: endTime,
+					constants.RETURN_SPOT_ITINERARY[7]: LONGITUDE,
+					constants.RETURN_SPOT_ITINERARY[8]:	LATITUDE
+				})
+
 			data.append({
 				constants.TOUR_TRANSACTION[0]: tourTransactionId,
 				constants.TOUR_TRANSACTION[1]: userId,
@@ -655,67 +795,10 @@ def GetHistoryPackageTG(request):
 				constants.TOUR_TRANSACTION[5]: numOfPeople,
 				constants.TOUR_TRANSACTION[6]: status,
 				constants.GUIDE_PACKAGE[1]: guideId,
-				constants.RETURN_TOUR_PACKAGES[1]: packageName
-				})
+				constants.RETURN_TOUR_PACKAGES[1]: packageName,
+				'itinerary_details': spot_data
+			})
 
-	except (MySQLdb.Error, MySQLdb.Warning) as e:
-		return HttpResponse(e)
-
-	cursor.close()
-	return HttpResponse(json.dumps(data), content_type="application/json")
-
-def GetRequestPackageTG(request):
-
-	guideId = request.GET.get('guideId')
-	view_requestpackage_tg = "SELECT * FROM RETURN_GUIDE_TRANSACTION WHERE guideId='" + guideId + "' AND status='Request';"
-	
-	cursor = cnx.cursor(buffered=True)
-
-	data = []
-	try:
-		cursor.execute(view_requestpackage_tg)
-		for (tourTransactionId, userId, packageId, reserveDate, tourDate, numOfPeople, status, guideId, packageName) in cursor:
-			data.append({
-				constants.TOUR_TRANSACTION[0]: tourTransactionId,
-				constants.TOUR_TRANSACTION[1]: userId,
-				constants.TOUR_TRANSACTION[2]: packageId,
-				constants.TOUR_TRANSACTION[3]: reserveDate.strftime('%Y-%m-%d'),
-				constants.TOUR_TRANSACTION[4]: tourDate.strftime('%Y-%m-%d'),
-				constants.TOUR_TRANSACTION[5]: numOfPeople,
-				constants.TOUR_TRANSACTION[6]: status,
-				constants.GUIDE_PACKAGE[1]: guideId,
-				constants.RETURN_TOUR_PACKAGES[1]: packageName
-				})
-
-	except (MySQLdb.Error, MySQLdb.Warning) as e:
-		return HttpResponse(e)
-
-	cursor.close()
-	return HttpResponse(json.dumps(data), content_type="application/json")
-
-
-def GetConfirmPackageTG(request):
-
-	guideId = request.GET.get('guideId')
-	view_requestpackage_tg = "SELECT * FROM RETURN_GUIDE_TRANSACTION WHERE guideId='" + guideId + "' AND status='Confirm';"
-	
-	cursor = cnx.cursor(buffered=True)
-
-	data = []
-	try:
-		cursor.execute(view_requestpackage_tg)
-		for (tourTransactionId, userId, packageId, reserveDate, tourDate, numOfPeople, status, guideId, packageName) in cursor:
-			data.append({
-				constants.TOUR_TRANSACTION[0]: tourTransactionId,
-				constants.TOUR_TRANSACTION[1]: userId,
-				constants.TOUR_TRANSACTION[2]: packageId,
-				constants.TOUR_TRANSACTION[3]: reserveDate.strftime('%Y-%m-%d'),
-				constants.TOUR_TRANSACTION[4]: tourDate.strftime('%Y-%m-%d'),
-				constants.TOUR_TRANSACTION[5]: numOfPeople,
-				constants.TOUR_TRANSACTION[6]: status,
-				constants.GUIDE_PACKAGE[1]: guideId,
-				constants.RETURN_TOUR_PACKAGES[1]: packageName
-				})
 
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
 		return HttpResponse(e)
@@ -800,16 +883,19 @@ def CreateCustomPackage(request):
 
 	packageId = packageIdTemp[0]
 	userId = package['userId']
-	packageName = package[constants.PACKAGE[1]]
 	payment = 0
 	numOfTGNeeded = package[constants.PACKAGE[4]]
+	numOfSpots = 0
+	packageName = package[constants.PACKAGE[1]]
+	description = package["description"]
+	numOfDays = package["numOfDays"]
+
 
 	cursor = cnx.cursor(buffered=True)
-	new_package = (packageId, packageName, userId, payment, numOfTGNeeded)
+	new_package = (packageId, userId,payment,numOfTGNeeded,numOfSpots, packageName, description, numOfDays)
 	new_package_statement = ("INSERT INTO CUSTOM_PACKAGE"
-							"("+constants.PACKAGE[0]+ ','+constants.PACKAGE[1]+', userId'+','+constants.PACKAGE[3]+','
-							""+constants.PACKAGE[4]+')'
-							"VALUES (%s,%s,%s,%s,%s)"
+							"(packageId, userId, payment, numOfTGNeeded, numOfSpots, packageName, description, numOfDays)"
+							"VALUES (%s,%s,%s,%s,%s, %s, %s, %s)"
 							)
 
 	try:
@@ -821,19 +907,45 @@ def CreateCustomPackage(request):
 	cnx.commit()
 	return HttpResponse('200')
 
+def GetCustomPackages(request):
+	userId = request.GET.get('userId')
+	statement = "SELECT * FROM CUSTOM_PACKAGE WHERE userId='"+userId+"';"
+
+	cursor = cnx.cursor(buffered=True)
+	try:
+		cursor.execute(statement)
+		data = []
+		for(packageId, userId, payment, numOfTGNeeded, numOfSpots, packageName, description, numOfDays) in cursor:
+			data.append({
+				"packageId":packageId,
+				"userId":userId,
+				 "payment":payment, 
+				 "numOfTGNeeded":numOfTGNeeded, 
+				 "numOfSpots":numOfSpots, 
+				 "packageName":packageName, 
+				 "description":description, 
+				 "numOfDays":numOfDays
+				})
+
+	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		return HttpResponse(e)
+
+	cnx.commit()
+	return HttpResponse(json.dumps(data), content_type="application/json")
+
 def GetMyCustomPackageTransactions(request):
 	userId = request.GET.get('userId')
 
-	statement = "SELECT * FROM return_custom_transaction WHERE userId = " + "'" + userId + "'"
+	statement = "SELECT * FROM return_custom_tour_transaction WHERE userId = " + "'" + userId + "'"
 
 	cursor = cnx.cursor(buffered=True)
 	cursorB = cnx.cursor(buffered=True)
 	try:
 		cursor.execute(statement)
 		custom_package = []
-		for(userId, tourTransactionId, packageId, packageName, reserveDate, tourDate, status, payment) in cursor:
+		for(packageId, userId, payment, numOfTGNeeded, numOfSpots, packageName, description, numOfDays, tourTransactionId, reserveDate, tourDate, numOfPeople, status) in cursor:
 
-			view_spot_itinerary_statement = "select * from return_spot_itinerary where packageId = '" + packageId + "' order by chronology asc"
+			view_spot_itinerary_statement = "select * from return_custom_spot_itinerary where packageId = '" + packageId + "' order by chronology asc"
 			cursorB.execute(view_spot_itinerary_statement)
 
 			counter = 0;
@@ -908,3 +1020,22 @@ def NotifyTourGuide():
 	# response = requests.post('https://fcm.googleapis.com/fcm/send', headers=headers, data=data)
 
 	return 200
+
+def ChooseTourGuide(city, language):
+	statement = "select guideId from tour_guide where city = '" + city + "';"
+	cursor = cnx.cursor(buffered=True)
+	cursorB = cnx.cursor(buffered=True)
+
+	data = []
+	try:
+		cursor.execute(statement)
+		for (guideId) in cursor:
+			statement2 = "select"
+
+	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		return HttpResponse(e)
+
+	cursor.close()
+	return HttpResponse(json.dumps(data), content_type="application/json")
+
+
