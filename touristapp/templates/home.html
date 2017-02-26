@@ -17,6 +17,7 @@
 	<link rel="stylesheet" href="{% static 'assets/css/css/bootstrap.min.css' %}">
 	<link rel="stylesheet" href="{% static 'assets/css/css/full-slider.css' %}">
 <body>
+	<script type="text/javascript" src="{% static 'assets/js/custom.js' %}"></script>
 	<div class="modal fade" id="signupModal" role="dialog">
 		<div class="modal-dialog modal-lg">
 			<!-- Modal content-->
@@ -51,11 +52,11 @@
 					<h4 class="modal-title" id="text-black">LOG IN</h4>
 				</div>
 				<div class="modal-body" style="text-align: center; background-color: #eaeaea;">
-			        <form name="login" action="/api/authenticate" method="POST">
+			        <form name="loginForm" action="" method="POST" enctype="application/json">
 			        	<input type="email" name="email" class="input-login" placeholder="touristaph@tourista.com.ph">
 			        	<input type="password" name="password" class="input-login" placeholder="**********">
 			        	<input type="hidden" name="type" value="TA">
-			        	<input type="submit" class="btn" value="LOG IN AS TRAVEL AGENCY" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19);">
+			        	<input onClick="logIn()" type="submit" class="btn" value="LOG IN AS TRAVEL AGENCY" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19);">
 			        	<div>
 			        	</div>
 			        </form>

@@ -27,16 +27,18 @@ TRAVEL_AGENCY = [
 ]
 
 PACKAGE = [
-	'packageId',
-	'packageName',
-	TRAVEL_AGENCY[0],
-	'payment',
-	'numOfTGNeeded',
-	'rating',
-	'description',
-	'duration',
-	'numOfSpots',
-	'minPeople'
+	'packageId', 
+	'packageName', 
+	'travelAgencyId', 
+	'payment', 
+	'numOfTGNeeded', 
+	'rating', 
+	'description', 
+	'duration', 
+	'numOfSpots', 
+	'minPeople', 
+	'photoFileName', 
+	'photoPath'
 ]
 
 USER = [
