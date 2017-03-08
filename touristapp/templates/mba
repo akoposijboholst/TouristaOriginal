@@ -1,0 +1,218 @@
+public static ArrayList<TouristaPackages> getSuggestedPackages(TouristaPackages pa, ArrayList<TouristaPackages> allTourPackages)
+    {
+        ArrayList<TouristaPackages> FinalPackageList = new ArrayList<>(); // this is for the final recommendation;
+        ArrayList<SemiFinalPackage> SemiPackageList = new ArrayList<>(); // this is for the semi final recommendation. subject for testing sa noOfFriends
+
+        RatingRange RatingRange= new RatingRange();
+        PriceRange PriceRange= new PriceRange();
+        ArrayList<String> TravelAgencySet= new ArrayList<>();
+        ArrayList<String> CategorySet= new ArrayList<>();
+
+
+        // <ITEM SET STANDARDS> /////////////////////////////////////
+        ArrayList<String> rt= new ArrayList<>();
+        rt.add("0-1");
+        rt.add("1-2");
+        rt.add("2-3");
+        rt.add("3-4");
+        rt.add("4-5");
+
+        ArrayList<String> pr= new ArrayList<>();
+        pr.add("Top");
+        pr.add("Upper Middle");
+        pr.add("Middle");
+        pr.add("Bottom");
+
+        ArrayList<ArrayList<String>> ta= new ArrayList<>();
+
+                    //First ItemSet for Travel Agency
+                    ArrayList<String> ta1= new ArrayList<>();
+                    ta1.add("USJR");
+                    ta1.add("Jimbofer");
+                    ta1.add("Colt");
+
+                    //Second ItemSet for Travel Agency
+                    ArrayList<String> ta2= new ArrayList<>();
+                    ta2.add("WOW Travel and Tours");
+                    ta2.add("Cebu Fortune Travel");
+                    ta2.add("AAir You Go Travel");
+
+                    //Third ItemSet for Travel Agency
+                    ArrayList<String> ta3= new ArrayList<>();
+                    ta3.add("Land and Sky Travel");
+                    ta3.add("Cebu Holidays Tours");
+                    ta3.add("Southwind Travel and Tours");
+
+        ta.add(ta1);
+        ta.add(ta2);
+        ta.add(ta3);
+
+        ArrayList<ArrayList<String>> cat= new ArrayList<>();
+
+        ArrayList<String> cat1= new ArrayList<>();
+        cat1.add("Family Tours");
+        cat1.add("Special Event Tours");
+        cat1.add("Adventure Tours");
+        cat1.add("Honeymoon Tours");
+
+        ArrayList<String> cat2= new ArrayList<>();
+        cat2.add("Religious Tours");
+        cat2.add("Educational Tours");
+        cat2.add("National Park Tours");
+        cat2.add("Cultural Tours");
+
+        // </ITEM SET STANDARDS> /////////////////////////////////////
+
+
+
+        // For HomePage
+        // Make test item sets (most frequent in history):
+        //  Rating, Category, Travel Agency, Price Range
+
+        // 1.Get the rating range
+            if(pa.getRating()>0 && pa.getRating()<=1)
+            {
+                RatingRange=new RatingRange(0,1);
+            }
+            else if(pa.getRating()>1 && pa.getRating()<=2)
+            {
+                RatingRange=new RatingRange(1,2);
+            }
+            else if(pa.getRating()>2 && pa.getRating()<=3)
+            {
+                RatingRange=new RatingRange(2,3);
+            }
+            else if(pa.getRating()>3 && pa.getRating()<=4)
+            {
+                RatingRange=new RatingRange(3,4);
+            }
+            else if(pa.getRating()>4 && pa.getRating()<=5)
+            {
+                RatingRange=new RatingRange(4,5);
+            }
+        // 2. Get price range
+
+            if(Integer.parseInt(pa.getPackPrice())>0 && Integer.parseInt(pa.getPackPrice())<=5000)
+            {
+                PriceRange = new PriceRange(0,5000);
+            }
+            else if(Integer.parseInt(pa.getPackPrice())>5000 && Integer.parseInt(pa.getPackPrice())<=10000)
+            {
+                PriceRange=new PriceRange(5000,10000);
+            }
+            else if(Integer.parseInt(pa.getPackPrice())>10000 && Integer.parseInt(pa.getPackPrice())<=15000)
+            {
+                PriceRange=new PriceRange(10000,15000);
+            }
+            else if(Integer.parseInt(pa.getPackPrice())>15000)
+            {
+                PriceRange=new PriceRange(15000,100000000);
+            }
+
+        // 3. Get ItemSet for Travel Agency
+
+        for(int i=0;i<ta.size();i++)
+        {
+            for (int a=0;a<ta.get(i).size();a++)
+            {
+                if(pa.getCompanyName().equals(ta.get(i).get(a)))
+                {
+                    TravelAgencySet=ta.get(i);
+                }
+                break;
+            }
+            break;
+        }
+
+        // 4. Get ItemSet for Category
+
+        for(int i=0;i<cat.size();i++)
+        {
+            for (int a=0;a<cat.get(i).size();a++)
+            {
+                if(pa.getCategory().equals(cat.get(i).get(a)))
+                {
+                    CategorySet=cat.get(i);
+                }
+                break;
+            }
+            break;
+        }
+
+        // 5. Get the recommendation list (ranked) according to the item set taken.
+
+        for(int b=0;b<allTourPackages.size();b++)
+        {
+            // Rating range
+            if(allTourPackages.get(b).getRating()>RatingRange.getStart()&&allTourPackages.get(b).getRating()<=RatingRange.getEnd())
+            {
+                // Price Range
+                if(Integer.parseInt(allTourPackages.get(b).getPackPrice())>PriceRange.getPriceStart() && Integer.parseInt(allTourPackages.get(b).getPackPrice()) <= PriceRange.getPriceEnd())
+                {
+
+                    // MBA itemSet for Category. Check if pasok sa itemset
+                    for(int c=0;c<CategorySet.size();c++)
+                    {
+                        if(allTourPackages.get(b).getCategory().equals(CategorySet.get(c)))
+                        {
+                            // MBA itemSet for Travel. Check if pasok sa itemSet then sulod sa SemiPackageList
+                            for(int d=0;d<CategorySet.size();d++)
+                            {
+                                if(allTourPackages.get(b).getCompanyName().equals(TravelAgencySet.get(d)))
+                                {
+                                    SemiPackageList.add(new SemiFinalPackage(allTourPackages.get(b)));
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+            }
+
+        }
+
+        double differenceSaLocation=0;
+        // 6. Calculate the points SemiPackageList
+        for(int e=0;e<SemiPackageList.size();e++)
+        {
+            TouristaPackages tp= SemiPackageList.get(e).getTpackage();
+            SemiPackageList.get(e).setTotalpoints(((tp.getNumberOfFreindsTakenThePackage()*0.50)+(differenceSaLocation*0.50)));
+        }
+
+
+        // 7. Sort SemiPackageList
+        SemiFinalPackage sp= new SemiFinalPackage();
+        
+        for (int i = 0; i<SemiPackageList.size()-1; i++)
+        {
+            int min = i;
+            for (int j = i+1; j < SemiPackageList.size(); j++)
+            if (SemiPackageList.get(j).getTotalpoints()< SemiPackageList.get(min).getTotalpoints()) {
+                min = j;
+            }
+            sp = SemiPackageList.get(i);
+            SemiPackageList.set(i,SemiPackageList.get(min));
+            SemiPackageList.set(min,sp);
+        }
+        
+        for (int i=0;i<SemiPackageList.size();i++)
+        {
+            FinalPackageList.add(SemiPackageList.get(i).getTpackage());
+        }
+        
+
+        // For Selected Package
+        // 1. Identify item set (base from current package/spot)
+        // Package: Rating, Category, Travel Agency, Price Range , City
+        // 2. Consider no of Friends taken the package
+
+        // For Selected Spots
+        // 1. Identify item set (base from current package/spot)
+        // Package: Rating, Category, Travel Agency, Prince
+        // 2. Consider no of Friends
+        // 3. Consider nearest to the Spot Location
+        
+
+        return FinalPackageList;
+    }

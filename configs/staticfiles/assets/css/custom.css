@@ -206,10 +206,20 @@ div#slider figure {
   animation: 30s slidy infinite; 
 }
 
-#text{
+.text{
 	font-family: poppinsbold;
 	color: #fff;
     text-shadow: 2px 2px #000;
+}
+
+.text-regular{
+	font-family: poppinsregular;
+	color: #000;
+}
+
+.text-semibold{
+	font-family: poppinssemibold;
+	color: #000;
 }
 
 #text-black{
@@ -218,6 +228,11 @@ div#slider figure {
 }
 
 #text-regular{
+	font-family: poppinsregular;
+	color: #000;
+}
+
+#agency-name{
 	font-family: poppinsregular;
 	color: #000;
 }

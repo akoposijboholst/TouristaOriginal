@@ -5,6 +5,7 @@ import touristapp.views
 
 urlpatterns = [
     url(r'^$', include('touristapp.urls')),
+    url(r'^login', touristapp.views.Login, name='login'),
     url(r'^admin/', admin.site.urls),
     url(r'^landing', touristapp.views.LandingPage, name='landing-page'),
     url(r'api/authenticate', touristapp.views.ApiAuthenticate, name='authenticate'),
@@ -26,7 +27,6 @@ urlpatterns = [
     url(r'^signin.html', touristapp.views.SignIn, name='signin.html'),
     url(r'^signup.html', touristapp.views.CreateTravelAgency, name='signup.html'),
     url(r'^api/get-booked-tours', touristapp.views.GetBookedPackages, name='get-booked-tours'),
-    # url(r'^api/get-confirm-transaction', touristapp.views.GetConfirmPackageTG, name='get-confirm-transaction'),
     url(r'^api/post-friends', touristapp.views.PostFriends, name='post-friends'),
     url(r'^api/add-rating-to-tour-guide-and-package', touristapp.views.AddRatingToTourGuideAndPackage, name='add-rating-to-tour-guide-and-package'),
     url(r'^api/get-friends-activity', touristapp.views.GetFriendsActivity, name='get-friends-activity'),
@@ -37,5 +37,12 @@ urlpatterns = [
     url(r'^api/get-all-package', touristapp.views.GetAllPackage, name='get-all-package'),
     url(r'^api/edit-package', touristapp.views.EditCustomPackage, name='edit-package'),
     url(r'^api/delete-spot-package', touristapp.views.DeleteSpot, name='delete-spot-package'),
+    url(r'^api/get/package/number/of/friends', touristapp.views.RecommendPackageNumFriends, name='get/package/number/of/friends'),
+    url(r'^api/cancel/booked/transaction', touristapp.views.CancelBookedTransaction, name='cancel/booked/transaction'),
+    url(r'^api/cancel/guide/transaction', touristapp.views.CancelTourGuide, name='cancel/guide/transaction'),
+    url(r'^api/comment/to/transaction', touristapp.views.AddCommentToTransaction, name='comment/to/transaction'),
+    url(r'^api/add/qr/code', touristapp.views.AddQRCode, name='add/qr/code'),
+    url(r'^api/use/qr/code', touristapp.views.UseQRCode, name='user/qr/code'),
+    url(r'^api/end/tour', touristapp.views.EndTour, name='end/tour'),
     url(r'^api/pili', touristapp.views.ChooseTourGuide, name='pili')
 ]

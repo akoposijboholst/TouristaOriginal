@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^login', views.Login, name='login'),
     url(r'^landing', views.LandingPage, name='landing-page'),
     url(r'^api/authenticate', views.ApiAuthenticate, name='authenticate'),
     url(r'^api/create-user', views.CreateUser, name='create-user'),
@@ -24,7 +25,6 @@ urlpatterns = [
     url(r'^signin.html', views.SignIn, name='signin.html'),
     url(r'^signup.html', views.CreateTravelAgency, name='signup.html'),
     url(r'^api/get-booked-tours', views.GetBookedPackages, name='get-booked-tours'),
-    # url(r'^api/get-confirm-transaction', views.GetConfirmPackageTG, name='get-confirm-transaction'),
     url(r'^api/post-friends', views.PostFriends, name='post-friends'),
     url(r'^api/add-rating-to-tour-guide-and-package', views.AddRatingToTourGuideAndPackage, name='add-rating-to-tour-guide-and-package'),
     url(r'^api/get-friends-activity', views.GetFriendsActivity, name='get-friends-activity'),
@@ -35,7 +35,13 @@ urlpatterns = [
     url(r'^api/get-all-package', views.GetAllPackage, name='get-all-package'),
     url(r'^api/edit-package', views.EditCustomPackage, name='edit-package'),
     url(r'^api/delete-spot-package', views.DeleteSpot, name='delete-spot-package'),
+    url(r'^api/get/package/number/of/friends', views.RecommendPackageNumFriends, name='get/package/number/of/friends'),
+    url(r'^api/cancel/booked/transaction', views.CancelBookedTransaction, name='cancel/booked/transaction'),
+    url(r'^api/cancel/guide/transaction', views.CancelTourGuide, name='cancel/guide/transaction'),
+    url(r'^api/comment/to/transaction', views.AddCommentToTransaction, name='comment/to/transaction'),
+    url(r'^api/add/qr/code', views.AddQRCode, name='add/qr/code'),
+    url(r'^api/use/qr/code', views.UseQRCode, name='user/qr/code'),
+    url(r'^api/end/tour', views.EndTour, name='end/tour'),
     url(r'^api/pili', views.ChooseTourGuide, name='pili')
-    # url(r'^api/get-all-package', views.NotifyTourGuide, name='get-all-package')
     
 ]

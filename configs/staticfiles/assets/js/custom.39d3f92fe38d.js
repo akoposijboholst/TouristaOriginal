@@ -32,15 +32,15 @@ function addNewRow(e){
 	table.append(newRow);
 }
 
-function logIn() {
-    var elements = document.getElementById("login").elements;
-    var obj ={};
-    for(var i = 0 ; i < elements.length ; i++){
-        var item = elements.item(i);
-        obj[item.name] = item.value;
-    }
-
-    alert(JSON.stringify(obj));
-
-    // document.getElementById("demo").innerHTML = JSON.stringify(obj);
+function logIn(e) {
+	var email = document.getElementById("email").value;
+	var password = document.getElementById("password").value;
+	var json = '{ "email:" ' + email + ', "password":' + password + "}";
+	var ambot = "ambot";
+	alert(email+password);
 }
+
+
+    	// success: function (response) {
+    	// alert(response);
+    	// }

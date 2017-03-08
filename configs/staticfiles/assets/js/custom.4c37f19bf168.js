@@ -35,7 +35,6 @@ function addNewRow(e){
 function logIn(e) {
 	var email = document.getElementById("email").value;
 	var password = document.getElementById("password").value;
-	alert("got in");
 	$.ajax({
                  type:"POST",
                  url:"/api/authenticate",
@@ -44,9 +43,8 @@ function logIn(e) {
                         'password': password,
                         'type': 'TA' // from form
                         },
-                 success: function(result){
-                 	console.log("pumasok");
-                 	window.location.href = "http://localhost:8000/landing";
+                 success: function(){
+                 	window.location.href = "landingpage.html";
                  }
             });
 }

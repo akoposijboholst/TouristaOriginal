@@ -222,6 +222,11 @@ div#slider figure {
 	color: #000;
 }
 
+#agency-name{
+	font-family: poppinsregular;
+	color: #000;
+}
+
 .input-login{
 	width: 100%;
 	font-family: poppinsregular;
@@ -230,4 +235,13 @@ div#slider figure {
 	font-size: 15px;
 	padding: 5px;
 	margin-bottom: 10px;
+}
+
+
+#below-header{
+	border-right: 1px solid #d3d3d3;
+	border-left: 1px solid #d3d3d3;
+	border-bottom: 1px solid #d3d3d3;
+	font-family: poppinsmedium;
+	border-radius: 0px;
 }

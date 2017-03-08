@@ -1,10 +1,3 @@
-(function(){
-	$("#login").click(function (event){
-		login();
-	});
-});
-
-
 function onClick(e){
 	var number = document.getElementById('numberticker');
 	var p = document.getElementById('number-me');
@@ -42,6 +35,23 @@ function addNewRow(e){
 function logIn(e) {
 	var email = document.getElementById("email").value;
 	var password = document.getElementById("password").value;
-	var json = '{ "email:" ' + email + ', "password":' + password + "}";
-	alert("bogo");
+	alert("got in");
+	$.ajax({
+                 type:"POST",
+                 url:"/api/authenticate",
+                 data: {
+                        'email': email,
+                        'password': password,
+                        'type': 'TA' // from form
+                        },
+                 success: function(result){
+                 	console.log("pumasok");
+                 	window.location.href = "http://localhost:8000/landing";
+                 }
+            });
 }
+
+
+    	// success: function (response) {
+    	// alert(response);
+    	// }

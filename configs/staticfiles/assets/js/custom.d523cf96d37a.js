@@ -1,10 +1,3 @@
-(function(){
-	$("#login").click(function (event){
-		login();
-	});
-});
-
-
 function onClick(e){
 	var number = document.getElementById('numberticker');
 	var p = document.getElementById('number-me');
@@ -39,15 +32,15 @@ function addNewRow(e){
 	table.append(newRow);
 }
 
-function logIn() {
-    var elements = document.getElementById("login").elements;
-    var inputs = $('#login').serialize;
-    var formObj = {};
-    $.each(inputs, function (i, input) {
-        formObj[input.name] = input.value;
-    });
-
-    alert(JSON.stringify(formObj));
-
-    // document.getElementById("demo").innerHTML = JSON.stringify(obj);
+function logIn(e) {
+	var email = document.getElementById("email").value;
+	var password = document.getElementById("password").value;
+	var json = '{ "email:" ' + email + ', "password":' + password + "}";
+	var ambot = "ambot";
+	alert(json);
 }
+
+
+    	// success: function (response) {
+    	// alert(response);
+    	// }

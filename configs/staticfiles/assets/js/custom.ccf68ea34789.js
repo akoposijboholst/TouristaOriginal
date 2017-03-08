@@ -1,10 +1,3 @@
-(function(){
-	$("#login").click(function (event){
-		login();
-	});
-});
-
-
 function onClick(e){
 	var number = document.getElementById('numberticker');
 	var p = document.getElementById('number-me');
@@ -39,15 +32,24 @@ function addNewRow(e){
 	table.append(newRow);
 }
 
-function logIn() {
-    var elements = document.getElementById("login").elements;
-    var inputs = $('#loginForm').serialize;
-    var formObj = {};
-    $.each(inputs, function (i, input) {
-        formObj[input.name] = input.value;
-    });
-
-    alert(JSON.stringify(formObj));
-
-    // document.getElementById("demo").innerHTML = JSON.stringify(obj);
+function logIn(e) {
+	var email = document.getElementById("email").value;
+	var password = document.getElementById("password").value;
+	$.ajax({
+                 type:"POST",
+                 url:"/api/authenticate",
+                 data: {
+                        'email': email,
+                        'password': password,
+                        'type': 'TA' // from form
+                        },
+                 success: function(){
+                     alert("success");
+                 }
+            });
 }
+
+
+    	// success: function (response) {
+    	// alert(response);
+    	// }

@@ -35,6 +35,23 @@ function addNewRow(e){
 function logIn(e) {
 	var email = document.getElementById("email").value;
 	var password = document.getElementById("password").value;
-	var json = '{ "email:" ' + email + ', "password":' + password + "}";
-	alert("bogo");
+                 	console.log("haha");
+	$.ajax({
+                 type:"POST",
+                 url:"/api/authenticate",
+                 data: {
+                        'email': email,
+                        'password': password,
+                        'type': 'TA' // from form
+                        },
+                 success: function(){
+                 	console.log("pumasok");
+                 	window.location.href = "http://localhost:8000/landing";
+                 }
+            });
 }
+
+
+    	// success: function (response) {
+    	// alert(response);
+    	// }

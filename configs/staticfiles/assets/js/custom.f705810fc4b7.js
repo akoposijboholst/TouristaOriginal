@@ -1,10 +1,3 @@
-(function(){
-	$("#login").click(function (event){
-		login();
-	});
-});
-
-
 function onClick(e){
 	var number = document.getElementById('numberticker');
 	var p = document.getElementById('number-me');
@@ -42,19 +35,23 @@ function addNewRow(e){
 function logIn(e) {
 	var email = document.getElementById("email").value;
 	var password = document.getElementById("password").value;
-	var json = '{ "email:" ' + email + ', "password":' + password + "}";
+                 	console.log("haha");
 	$.ajax({
-      type:'POST',
-      url:'api/authenticate',
-      cache:false,
-      data:JSON.parse(json),
-      async:asynchronous,
-      dataType:json, //if you want json
-      success: function(data) {
-        // <put your custom validation here using the response from data structure >
-      },
-      error: function(request, status, error) {
-        // <put your custom code here to handle the call failure>
-      }
-   });
+                 type:"POST",
+                 url:"/api/authenticate",
+                 data: {
+                        'email': email,
+                        'password': password,
+                        'type': 'TA' // from form
+                        },
+                 success: function(){
+                 	console.log("pumasok");
+                 	window.location.href = "http://localhost:8000/landingpage.html";
+                 }
+            });
 }
+
+
+    	// success: function (response) {
+    	// alert(response);
+    	// }

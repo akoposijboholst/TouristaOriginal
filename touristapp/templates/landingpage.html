@@ -10,16 +10,26 @@
 	
 	<link rel="stylesheet" media="screen" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,700">
 	<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
-	<link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}">
+	<!-- <link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}"> -->
 
 	<!-- Custom styles for our template -->
 	<link rel="stylesheet" href="{% static 'assets/css/bootstrap-theme.css' %}" media="screen" >
-	<link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
 	<link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
 	<link rel="stylesheet" href="{% static 'assets/css/css/bootstrap.css' %}">
 	<link rel="stylesheet" href="{% static 'assets/css/css/bootstrap.min.css' %}">
 </head>
 <body>
+
+	<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> -->
+	<!-- <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+
+
+	<script type="text/javascript" src="{% static 'assets/js/jquery-3.1.1.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+	<!-- <script type="text/javascript" src="{% static 'assets/js/bootstrap.js' %}"></script> -->
+
+	<script type="text/javascript" src="{% static 'assets/js/custom.js' %}"></script>
+
 	<div class="navbar navbar-fixed-top" style="background-color: #000;">
 		<div class="container">
 			<div class="navbar-header">
@@ -29,7 +39,7 @@
 			<div class="navbar-collapse collapse">
 				<div class="nav navbar-nav pull-right">
 					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" id="text-regular" style="color: #fff;">Jimbofer Travels
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" id="agency-name" style="color: #fff;">123 Travels
 							<span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li id="text-regular"><a href="#">Profile</a></li>
@@ -42,7 +52,7 @@
 		</div>
 	</div>
 
-	<div class="navbar" style="margin: 0;">
+	<div class="navbar" style="margin: 0; background-color: #000;">
 		<div class="container">
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
@@ -51,7 +61,7 @@
 			<div class="navbar-collapse collapse">
 				<div class="nav navbar-nav pull-right">
 					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" id="text-regular" style="color: #fff;">Jimbofer Travels
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color: #fff;">123 Travels
 							<span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li id="text-regular"><a href="#">Profile</a></li>
@@ -64,22 +74,184 @@
 		</div>
 	</div>
 
-
-	<div class="navbar" id="below-header">
+	<div class="navbar" id="below-header" style="margin-bottom: 0;">
 		<div class="container">
 			<div class="navbar-collapse collapse">
 				<ul class="nav navbar-nav pull-left">
-					<li class="active"><a href="#" style="color: black;" id="text-regular">MY TOURS</a></li>
+					<li class="text-regular active"><a href="#my_tours" style="color: black;">MY TOURS</a></li>
 					<li><a href="about.html" style="color: black;" id="text-regular">TRANSACTIONS</a></li>
 				</ul>
-				</div>
 			</div>
 		</div>
 	</div>
 
-	{{ hehe }}
+	<div id="my_tours" class="container" style="background-color: #f2f2f2; height:20px; width: 100%; margin: 0; padding: 0;">
+		<div class="col-md-4" style="height: 100%; padding: 10px 5px 10px 10px;">
+			<img id="big-package-img" src="{% static 'assets/images/spot.png' %}" style="width: 100%; height: 40%;">
+			<p class="text-regular pull-right" style="font-size: 10px; width: 100; margin-bottom: 0; margin-right: 0;">Rating</p>
+			<div style="margin-top: 15px; margin-bottom: 0; width: 100%; padding: 0;">
+				<p class="text" style="height: 100%; font-size: 20px; text-shadow: 0px 0px #fff; color: #000; margin: 0; display: inline-block;" id="package_name">Hongkong Disney Land Tours</p>
+				<p class="text pull-right" style="height: 100%; font-size: 20px; text-shadow: 0px 0px #fff; color: #000; margin: 0; display: inline-block;" id="package_name">5.9</p>
+			</div>
+			<p class="text-regular text-justify" style="font-size: 12px; text-shadow: 0px 0px #fff; color: #000; width: 100%; overflow: hidden;margin-top: 5px;margin-bottom: 0;" id="package_description">"I'm all out of lost words to fill in these gaps. Hahahaha. Pero may unta nga taas-taas na ni siya to make the template look good. By the way, how's life? Are we all doing great or yeah? Or I dunno. Whatever."</p>
+			<p class="text-regular" style="font-size: 10px; text-shadow: 0px 0px #fff; color: #000; width: 100%; overflow: hidden;margin-top: 5px;margin-bottom: 0;">Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer Jimbofer</p>
+		</div>
 
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<div class="col-md-4" style="height: 100%; padding: 10px 5px 10px 5px; overflow: auto;">
+			<p class="text-regular pull-right" style="font-size: 10px; width: 100; margin-bottom: 0; margin-right: 0;"># of spots</p>
+			<div style="margin-top: 15px; margin-bottom: 0; width: 100%; padding: 0;">
+				<p class="text" style="height: 100%; font-size: 20px; text-shadow: 0px 0px #fff; color: #000; margin: 0; display: inline-block;">Package Itineraries</p>
+				<p class="text pull-right" style="height: 100%; font-size: 20px; text-shadow: 0px 0px #fff; color: #000; margin: 0; display: inline-block;" id="package_name">5.9</p>
+			</div>
+			<div style="width: 100%; height: 30%; background-color: white; box-shadow: 0px 3px 5px #888888; padding: 4px; margin-bottom: 5px;">
+				<div style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 0;">
+					<img src="{% static 'assets/images/spot.png' %}" style="height: 100%; width: 100%; margin: 0;">
+				</div>
+				<div class="pull-right" style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 2px;">
+					<p class="text-semibold" style="margin: 0;">Spot Name</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">08:00-09:00</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Sta. Teresa Extension III, Cansojong, Oldog Road, Talisay City, Cebu, Philippines, 6045</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Activity</p>
+				</div>
+			</div>
+
+			<div style="width: 100%; height: 30%; background-color: white; box-shadow: 0px 3px 5px #888888; padding: 4px; margin-bottom: 5px;">
+				<div style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 0;">
+					<img src="{% static 'assets/images/spot.png' %}" style="height: 100%; width: 100%; margin: 0;">
+				</div>
+				<div class="pull-right" style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 2px;">
+					<p class="text-semibold" style="margin: 0;">Spot Name</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">08:00-09:00</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Sta. Teresa Extension III, Cansojong, Oldog Road, Talisay City, Cebu, Philippines, 6045</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Activity</p>
+				</div>
+			</div>
+
+			<div style="width: 100%; height: 30%; background-color: white; box-shadow: 0px 3px 5px #888888; padding: 4px; margin-bottom: 5px;">
+				<div style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 0;">
+					<img src="{% static 'assets/images/spot.png' %}" style="height: 100%; width: 100%; margin: 0;">
+				</div>
+				<div class="pull-right" style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 2px;">
+					<p class="text-semibold" style="margin: 0;">Spot Name</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">08:00-09:00</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Sta. Teresa Extension III, Cansojong, Oldog Road, Talisay City, Cebu, Philippines, 6045</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Activity</p>
+				</div>
+			</div>
+
+			<div style="width: 100%; height: 30%; background-color: white; box-shadow: 0px 3px 5px #888888; padding: 4px; margin-bottom: 5px;">
+				<div style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 0;">
+					<img src="{% static 'assets/images/spot.png' %}" style="height: 100%; width: 100%; margin: 0;">
+				</div>
+				<div class="pull-right" style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 2px;">
+					<p class="text-semibold" style="margin: 0;">Spot Name</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">08:00-09:00</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Sta. Teresa Extension III, Cansojong, Oldog Road, Talisay City, Cebu, Philippines, 6045</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Activity</p>
+				</div>
+			</div>
+
+			<div style="width: 100%; height: 30%; background-color: white; box-shadow: 0px 3px 5px #888888; padding: 4px; margin-bottom: 5px;">
+				<div style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 0;">
+					<img src="{% static 'assets/images/spot.png' %}" style="height: 100%; width: 100%; margin: 0;">
+				</div>
+				<div class="pull-right" style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 2px;">
+					<p class="text-semibold" style="margin: 0;">Spot Name</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">08:00-09:00</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Sta. Teresa Extension III, Cansojong, Oldog Road, Talisay City, Cebu, Philippines, 6045</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Activity</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-4" style="height: 100%; padding: 10px 5px 10px 5px; overflow: auto;">
+			<p class="text-regular pull-right" style="font-size: 10px; width: 100; margin-bottom: 0; margin-right: 0;"># of spots</p>
+			<div style="margin-top: 15px; margin-bottom: 0; width: 100%; padding: 0;">
+				<p class="text" style="height: 100%; font-size: 20px; text-shadow: 0px 0px #fff; color: #000; margin: 0; display: inline-block;">Package Itineraries</p>
+				<p class="text pull-right" style="height: 100%; font-size: 20px; text-shadow: 0px 0px #fff; color: #000; margin: 0; display: inline-block;" id="package_name">5.9</p>
+			</div>
+			<div style="width: 100%; height: 30%; background-color: white; box-shadow: 0px 3px 5px #888888; padding: 4px; margin-bottom: 5px;">
+				<div style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 0;">
+					<img src="{% static 'assets/images/spot.png' %}" style="height: 100%; width: 100%; margin: 0;">
+				</div>
+				<div class="pull-right" style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 2px;">
+					<p class="text-semibold" style="margin: 0;">Spot Name</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">08:00-09:00</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Sta. Teresa Extension III, Cansojong, Oldog Road, Talisay City, Cebu, Philippines, 6045</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Activity</p>
+				</div>
+			</div>
+
+			<div style="width: 100%; height: 30%; background-color: white; box-shadow: 0px 3px 5px #888888; padding: 4px; margin-bottom: 5px;">
+				<div style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 0;">
+					<img src="{% static 'assets/images/spot.png' %}" style="height: 100%; width: 100%; margin: 0;">
+				</div>
+				<div class="pull-right" style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 2px;">
+					<p class="text-semibold" style="margin: 0;">Spot Name</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">08:00-09:00</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Sta. Teresa Extension III, Cansojong, Oldog Road, Talisay City, Cebu, Philippines, 6045</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Activity</p>
+				</div>
+			</div>
+
+			<div style="width: 100%; height: 30%; background-color: white; box-shadow: 0px 3px 5px #888888; padding: 4px; margin-bottom: 5px;">
+				<div style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 0;">
+					<img src="{% static 'assets/images/spot.png' %}" style="height: 100%; width: 100%; margin: 0;">
+				</div>
+				<div class="pull-right" style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 2px;">
+					<p class="text-semibold" style="margin: 0;">Spot Name</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">08:00-09:00</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Sta. Teresa Extension III, Cansojong, Oldog Road, Talisay City, Cebu, Philippines, 6045</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Activity</p>
+				</div>
+			</div>
+
+			<div style="width: 100%; height: 30%; background-color: white; box-shadow: 0px 3px 5px #888888; padding: 4px; margin-bottom: 5px;">
+				<div style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 0;">
+					<img src="{% static 'assets/images/spot.png' %}" style="height: 100%; width: 100%; margin: 0;">
+				</div>
+				<div class="pull-right" style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 2px;">
+					<p class="text-semibold" style="margin: 0;">Spot Name</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">08:00-09:00</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Sta. Teresa Extension III, Cansojong, Oldog Road, Talisay City, Cebu, Philippines, 6045</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Activity</p>
+				</div>
+			</div>
+
+			<div style="width: 100%; height: 30%; background-color: white; box-shadow: 0px 3px 5px #888888; padding: 4px; margin-bottom: 5px;">
+				<div style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 0;">
+					<img src="{% static 'assets/images/spot.png' %}" style="height: 100%; width: 100%; margin: 0;">
+				</div>
+				<div class="pull-right" style="height: 100%; width: 50%; display: inline-block; margin: 0; padding: 2px;">
+					<p class="text-semibold" style="margin: 0;">Spot Name</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">08:00-09:00</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Sta. Teresa Extension III, Cansojong, Oldog Road, Talisay City, Cebu, Philippines, 6045</p>
+					<p class="text-regular" style="margin: 0; font-size: 12px;">Activity</p>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<input type="hidden" id="json_text" name="json_text" value="{{ data }}">
+	<script type="text/javascript" src="{% static 'assets/js/landingpage.js' %}"></script>
+<!-- 	<script type="text/javascript">
+		// var value = document.getElementById("json_text").value;
+		// var json = JSON.parse(value);
+		// var agencyName = json["agencyName"]
+		// var $a = $('#agency-name');
+		// var children  = $a.children();
+		// $a.text(agencyName);
+		// $a.append(children);
+
+		var screenHeight = $(window).height(); 
+		var belowheader = $('#below-header').outerHeight(true);
+
+		var divcontainer = $('#my_tours');
+		// Assign that height to the .row
+		divcontainer.css({
+			'height': (screenHeight-belowheader-belowheader) + 'px',
+		});
+	</script> -->
 </body>
-</html>
+</html>	

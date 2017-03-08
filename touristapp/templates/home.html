@@ -2,22 +2,138 @@
 {% load static %}
 <html>
 	<title>Tourista</title>
+  	<meta charset="UTF-8">
 	<link rel="shortcut icon" href="{% static 'assets/images/tourista_logo.png' %}">
 	
 	<link rel="stylesheet" media="screen" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,700">
 	<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
-	<link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}">
+	<!-- <link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}"> -->
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
 	<!-- Custom styles for our template -->
-	<link rel="stylesheet" href="{% static 'assets/css/bootstrap-theme.css' %}" media="screen" >
-	<link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap-theme.css' %}" media="screen">
+
 	<link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
 	<link rel="stylesheet" href="{% static 'assets/css/css/bootstrap.css' %}">
 	<link rel="stylesheet" href="{% static 'assets/css/css/bootstrap.min.css' %}">
 	<link rel="stylesheet" href="{% static 'assets/css/css/full-slider.css' %}">
 <body>
+	<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+
+	<script type="text/javascript" src="{% static 'assets/js/jquery-3.1.1.min.js' %}"></script>
+	<!-- <script type="text/javascript" src="{% static 'assets/js/bootstrap.js' %}"></script> -->
+	<script type="text/javascript" src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+
 	<script type="text/javascript" src="{% static 'assets/js/custom.js' %}"></script>
+	<script src="https://www.gstatic.com/firebasejs/3.6.10/firebase.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/3.6.10/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/3.6.10/firebase-auth.js"></script>
+	<script type="text/javascript">
+		var firstname;
+		var lastname;
+		var facebookId;
+		var email;
+		var birthday;
+		var provider = new firebase.auth.FacebookAuthProvider();
+
+		var config = {
+			apiKey: "AIzaSyBAZOZkTRdaGX3B5O2_xBu_JrCH6fJa4rg",
+			authDomain: " tourista-2baf9.firebaseapp.com"
+		};
+		firebase.initializeApp(config);
+
+		window.fbAsyncInit = function() {
+			FB.init({
+				appId      : '376098946064922',
+				cookie     : true,  // enable cookies to allow the server to access 
+	    	                      // the session
+	    	    xfbml      : true,  // parse social plugins on this page
+	        	version    : 'v2.8' // use graph api version 2.8
+	        });
+
+		    FB.getLoginStatus(function(response) {
+		    	statusChangeCallback(response);
+		    });
+		};
+
+		(function(d, s, id) {
+			var js, fjs = d.getElementsByTagName(s)[0];
+			if (d.getElementById(id)) return;
+			js = d.createElement(s); js.id = id;
+			js.src = "//connect.facebook.net/en_US/sdk.js";
+			fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));
+
+		function statusChangeCallback(response) {
+			console.log('statusChangeCallback');
+			console.log(response);
+
+			if (response.status === 'connected') {
+				console.log("Boholst " + JSON.stringify(response));
+			} else if (response.status === 'not_authorized') {
+				console.log("Boholst not authorized");
+			} else {
+				console.log("Boholst wa kasabot");
+			}
+		}
+		// FB.getLoginStatus(function(response) {
+		// 	statusChangeCallback(response);
+		// });
+
+		function testAPI() {
+			firebase.auth().signInWithPopup(provider).then(function(result) {
+				// This gives you a Facebook Access Token. You can use it to access the Facebook API.
+				 var token = result.credential.accessToken;
+				 var user = result.user;
+				 console.log(user);
+				}).catch(function(error) {
+					var errorCode = error.code;
+					var errorMessage = error.message;
+					// The email of the user's account used.
+					var email = error.email;
+					// The firebase.auth.AuthCredential type that was used.
+					var credential = error.credential;
+				});
+
+			console.log('Welcome!  Fetching your information.... ');
+			FB.api('/me', {"fields": "id, first_name, last_name, email, birthday, languages"},function(response) {
+				var json = JSON.stringify(response);
+				console.log('Successful login for: ' + json);
+				updateModal(json);
+			});
+		}    
+		function logout(){
+			FB.logout(function(response){
+				if (! response.authResponse){
+				}
+			});
+		}
+
+		function updateModal(json){
+			var parse = JSON.parse(json)
+			console.log(parse["first_name"] + " Boholst");
+			firstname = parse["first_name"];
+			lastname = parse["last_name"];
+			email = parse["email"];
+			var bday = parse["birthday"].split('/');
+			birthday = bday[2] + "-" + bday[0] + "-" + bday[1];
+
+			$("#firstname").val(firstname);	
+			$("#lastname").val(lastname);	
+			$("#email").val(email);
+			$("#birthday").val(birthday);			
+			// logout();
+		}
+
+		function getSelector(){
+			var selected = $("#selector option:selected").text();
+			if(selected == "Tour Guide"){
+				$("#tgsignup1").modal();
+			}
+		}
+	</script>
+
 	<div class="modal fade" id="signupModal" role="dialog">
 		<div class="modal-dialog modal-lg">
 			<!-- Modal content-->
@@ -28,17 +144,45 @@
 				</div>
 				<div class="modal-body" style="text-align: center;">
 			        <form>
-			        	<div class="form-group" style="display: inline-block; width: 100%;" id="text-regular">
-				        	<select class="form-control" id="sel1">
-				        		<option id="text-regular">Tour Guide</option>
-				        		<option id="text-regular">Travel Agency</option>
+			        	<div class="form-group" style="display: inline-block; width: 100%;" class="text-regular">
+				        	<select class="form-control" class="text-regular" id="selector">
+				        		<option class="text-regular">Tour Guide</option>
+				        		<option class="text-regular">Travel Agency</option>
 				        	</select>
 			        	</div>
 			        </form>
 			    </div>
 			    <div class="modal-footer">
-			    	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			    	<button onClick="getSelector();" type="button" class="btn btn-default text-semibold" data-dismiss="modal">Sign-up</button>
 			    </div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="tgsignup1" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title" id="text-black">PERSONAL INFORMATION</h4>
+				</div>
+				<div class="modal-body" style="text-align: center; background-color: #eaeaea;">
+			        <form name="loginForm" action="" method="POST" enctype="application/json">
+			        	<input type="text" name="firstname" id="firstname" class="input-login" placeholder="FIRSTNAME">
+			        	<input type="text" name="lastname" id="lastname" class="input-login" placeholder="LASTNAME">
+			        	<input type="email" name="email" id="email" class="input-login" placeholder="EMAIL">
+			        	<input type="date" name="birthday" id="birthday" class="input-login" placeholder="DATE OF BIRTH">
+			        	<input type="button" onClick="testAPI()" class="btn" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19);" value="LOG IN WITH FACEBOOK BES">
+ 						<br>
+			        	<input type="submit" class="btn" value="PROCEED BES" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19); margin-top: 10px;">
+
+			        	<input onClick="logout()" class="btn" value="LOGOUT" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19); margin-top: 10px;">
+			        	<div>
+			        	</div>
+			        </form>
+
+ 			    </div>
 			</div>
 		</div>
 	</div>
@@ -52,15 +196,24 @@
 					<h4 class="modal-title" id="text-black">LOG IN</h4>
 				</div>
 				<div class="modal-body" style="text-align: center; background-color: #eaeaea;">
-			        <form name="loginForm" action="" method="POST" enctype="application/json">
+			        <form name="loginForm" action="api/authenticate" method="POST" enctype="application/json">
 			        	<input type="email" name="email" class="input-login" placeholder="touristaph@tourista.com.ph">
 			        	<input type="password" name="password" class="input-login" placeholder="**********">
 			        	<input type="hidden" name="type" value="TA">
-			        	<input onClick="logIn()" type="submit" class="btn" value="LOG IN AS TRAVEL AGENCY" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19);">
+			        	<input type="submit" class="btn" value="LOG IN AS TRAVEL AGENCY" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19);">
 			        	<div>
 			        	</div>
 			        </form>
-			    </div>
+
+<!-- 			        <form name="loginForm" action="" method="POST" enctype="application/json">
+			        	<input type="email" id="email" name="email" class="input-login" placeholder="touristaph@tourista.com.ph">
+			        	<input type="password" id="password" name="password" class="input-login" placeholder="**********">
+			        	<input type="hidden" name="type" value="TA">
+			        	<button onClick="logIn()" type="button" class="btn" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19);">LOG IN AS TRAVEL AGENCY</button>
+			        	<div>
+			        	</div>
+			        </form>
+ -->			    </div>
 			</div>
 		</div>
 	</div>
@@ -71,19 +224,19 @@
 			<div class="navbar-header">
 				<!-- Button for smallest screens -->
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
-				<a class="navbar-brand" href="home.html"><img src="{% static 'assets/images/tourista_logo.png' %}" alt="Tourista" style="float:left;"><p style="float:right; margin-left: 10px;color: #fff;" id="text-regular">Tourista</p></a>	
+				<a class="navbar-brand" href="home.html"><img src="{% static 'assets/images/tourista_logo.png' %}" alt="Tourista" style="float:left;"><p style="float:right; margin-left: 10px;color: #fff;" class="text-regular">Tourista</p></a>	
 			</div>
 			<div class="navbar-collapse collapse">
 				<ul class="nav navbar-nav pull-right">
-					<li><a style="color: #fff" data-toggle="modal" data-target="#signupModal" id="text-regular">SIGN UP</a></li>
-					<li><a style="color: #fff" data-toggle="modal" data-target="#loginModal" id="text-regular">LOGIN</a></li>
+					<li><a style="color: #fff" data-toggle="modal" data-target="#signupModal" class="text-regular">SIGN UP</a></li>
+					<li><a style="color: #fff" data-toggle="modal" data-target="#loginModal" class="text-regular">LOGIN</a></li>
 					<!-- <li><a class="btn" href="signin.html">SIGN IN / SIGN UP</a></li> -->
 				</ul>
 			</div><!--/.nav-collapse -->
 		</div>
 	</div> 
 
-	<header id="myCarousel" class="carousel slide" style="height:50%;">
+	<header id="myCarousel" class="carousel slide" style="height:100%;">
         <!-- Indicators -->
         <ol class="carousel-indicators">
             <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
@@ -96,21 +249,21 @@
                 <!-- Set the first background image using inline CSS below. -->
                 <div class="fill" style="background-image:url('{% static 'assets/images/tourist.png' %}');"></div>
                 <div class="carousel-caption">
-                    <h2 id="text">Travel like a local. Be a local.</h2>
+                    <h2 class="text">Travel like a local. Be a local.</h2>
                 </div>
             </div>
             <div class="item">
                 <!-- Set the second background image using inline CSS below. -->
                 <div class="fill" style="background-image:url('{% static 'assets/images/tourguide.png' %}');"></div>
                 <div class="carousel-caption">
-                    <h2 id="text">Meet new friends, while earning.</h2>
+                    <h2 class="text">Meet new friends, while earning.</h2>
                 </div>
             </div>
             <div class="item">
                 <!-- Set the third background image using inline CSS below. -->
                 <div class="fill" style="background-image:url('{% static 'assets/images/spot.png' %}');"></div>
                 <div class="carousel-caption">
-                    <h2 id="text">Add your agency's best itineraries.</h2>
+                    <h2 class="text">Add your agency's best itineraries.</h2>
                 </div>
             </div>
         </div>
@@ -125,52 +278,14 @@
 
     </header>
 
-		<div class="container" style="height:50%; overflow: auto;">
-			
-			<h3 class="text-center" id="text-black">Explore. Discover. Travel More.</h3>
-			
-			<div class="row">
-				<div class="col-md-3 col-sm-6 highlight">
-					<div class="h-caption"><h4><i class="fa fa-cogs fa-5"></i>Bootstrap-powered</h4></div>
-					<!-- <div class="h-body text-center">
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Atque aliquid adipisci aspernatur. Soluta quisquam dignissimos earum quasi voluptate. Amet, dignissimos, tenetur vitae dolor quam iusto assumenda hic reprehenderit?</p>
-					</div> -->
-				</div>
-				<div class="col-md-3 col-sm-6 highlight">
-					<div class="h-caption"><h4><i class="fa fa-flash fa-5"></i>Fat-free</h4></div>
-					<!-- <div class="h-body text-center">
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores, commodi, sequi quis ad fugit omnis cumque a libero error nesciunt molestiae repellat quos perferendis numquam quibusdam rerum repellendus laboriosam reprehenderit! </p>
-					</div> -->
-				</div>
-				<div class="col-md-3 col-sm-6 highlight">
-					<div class="h-caption"><h4><i class="fa fa-heart fa-5"></i>Creative Commons</h4></div>
-					<!-- <div class="h-body text-center">
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatem, vitae, perferendis, perspiciatis nobis voluptate quod illum soluta minima ipsam ratione quia numquam eveniet eum reprehenderit dolorem dicta nesciunt corporis?</p>
-					</div> -->
-				</div>
-				<div class="col-md-3 col-sm-6 highlight">
-					<div class="h-caption"><h4><i class="fa fa-smile-o fa-5"></i>Author's support</h4></div>
-					<!-- <div class="h-body text-center">
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias, excepturi, maiores, dolorem quasi reprehenderit illo accusamus nulla minima repudiandae quas ducimus reiciendis odio sequi atque temporibus facere corporis eos expedita? </p>
-					</div> -->
-				</div>
-			</div> <!-- /row  -->
-		
-		</div>
-
-		<div style="height: 50%;background-color:blue;"></div>
-
-
-
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<!-- <script src="{% static 'assets/js/headroom.min.js"></script>
-	<script src="{% static 'assets/js/jQuery.headroom.min.js"></script>
-	<script src="{% static 'assets/js/template.js"></script>
-	<script src="{% static 'assets/js/js/bootstrap.js"></script>
-	<script src="{% static 'assets/js/js/bootstrap.min.js"></script>
-	<script src="{% static 'assets/js/js/jquery.js"></script> -->
+		<!-- <input id="json_text" type="hidden" name="json_text" value="{{ data }}">
+		<script type="text/javascript">
+		var val = document.getElementById("json_text").value;
+			if(val == ""){
+			}else{
+				var json = JSON.parse(val);
+				console.log(json["agencyName"]);
+			}
+		</script> -->
 </body>
 </html>
