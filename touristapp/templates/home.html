@@ -35,6 +35,7 @@
 		var facebookId;
 		var email;
 		var birthday;
+		var fbId;
 		var provider = new firebase.auth.FacebookAuthProvider();
 
 		var config = {
@@ -71,6 +72,7 @@
 
 			if (response.status === 'connected') {
 				console.log("Boholst " + JSON.stringify(response));
+				testAPI();
 			} else if (response.status === 'not_authorized') {
 				console.log("Boholst not authorized");
 			} else {
@@ -82,19 +84,19 @@
 		// });
 
 		function testAPI() {
-			firebase.auth().signInWithPopup(provider).then(function(result) {
-				// This gives you a Facebook Access Token. You can use it to access the Facebook API.
-				 var token = result.credential.accessToken;
-				 var user = result.user;
-				 console.log(user);
-				}).catch(function(error) {
-					var errorCode = error.code;
-					var errorMessage = error.message;
-					// The email of the user's account used.
-					var email = error.email;
-					// The firebase.auth.AuthCredential type that was used.
-					var credential = error.credential;
-				});
+			// firebase.auth().signInWithPopup(provider).then(function(result) {
+			// 	// This gives you a Facebook Access Token. You can use it to access the Facebook API.
+			// 	 var token = result.credential.accessToken;
+			// 	 var user = result.user;
+			// 	 console.log(user);
+			// 	}).catch(function(error) {
+			// 		var errorCode = error.code;
+			// 		var errorMessage = error.message;
+			// 		// The email of the user's account used.
+			// 		var email = error.email;
+			// 		// The firebase.auth.AuthCredential type that was used.
+			// 		var credential = error.credential;
+			// 	});
 
 			console.log('Welcome!  Fetching your information.... ');
 			FB.api('/me', {"fields": "id, first_name, last_name, email, birthday, languages"},function(response) {
@@ -118,6 +120,7 @@
 			email = parse["email"];
 			var bday = parse["birthday"].split('/');
 			birthday = bday[2] + "-" + bday[0] + "-" + bday[1];
+			fbId = parse["id"];
 
 			$("#firstname").val(firstname);	
 			$("#lastname").val(lastname);	
@@ -131,6 +134,10 @@
 			if(selected == "Tour Guide"){
 				$("#tgsignup1").modal();
 			}
+		}
+
+		function showModal(){
+				$("#tgsignup2").modal();
 		}
 	</script>
 
@@ -173,9 +180,41 @@
 			        	<input type="text" name="lastname" id="lastname" class="input-login" placeholder="LASTNAME">
 			        	<input type="email" name="email" id="email" class="input-login" placeholder="EMAIL">
 			        	<input type="date" name="birthday" id="birthday" class="input-login" placeholder="DATE OF BIRTH">
-			        	<input type="button" onClick="testAPI()" class="btn" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19);" value="LOG IN WITH FACEBOOK BES">
+			        	<button class="btn fb-login-button" data-scope="email,user_birthday,user_hometown,user_location,user_website,user_work_history,user_about_me" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19);" value="LOG IN WITH FACEBOOK"></button>
  						<br>
-			        	<input type="submit" class="btn" value="PROCEED BES" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19); margin-top: 10px;">
+ 						<br>
+			        	<button onClick="showModal()" type="button" class="btn" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19);"  data-dismiss="modal">Proceed</button>
+
+			        	<!-- <input onClick="logout()" class="btn" value="LOGOUT" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19); margin-top: 10px;"> -->
+			        	<div>
+			        	</div>
+			        </form>
+
+ 			    </div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="tgsignup2" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title" id="text-black">PERSONAL INFORMATION</h4>
+				</div>
+				<div class="modal-body" style="text-align: center; background-color: #eaeaea;">
+			        <form name="loginForm" action="" method="POST" enctype="application/json">
+			        	<input type="text" name="profiledescription" id="profiledescription" class="input-login" placeholder="Profile Description">
+			        	<input type="text" name="street" id="street" class="input-login" placeholder="street">
+			        	<input type="text" name="city" id="city" class="input-login" placeholder="city">
+			        	<input type="text" name="country" id="country" class="input-login" placeholder="country">
+			        	<input type="text" name="zipcode" id="zipcode" class="input-login" placeholder="zipcode">
+			        	<input type="text" name="citizenship" id="citizenship" class="input-login" placeholder="citizenship">
+			        	<input type="text" name="contactnumber" id="contactnumber" class="input-login" placeholder="contactnumber">
+			        	<input type="button" onClick="testAPI()" class="btn" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19);" value="LOG IN WITH FACEBOOK">
+ 						<br>
+			        	<button onClick="showModal()" type="button" cclass="btn" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19);" data-dismiss="modal">Proceed</button>
 
 			        	<input onClick="logout()" class="btn" value="LOGOUT" style="width: 100%; background-color: #1776d0; color: #fff; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 5px 0 rgba(0,0,0,0.19); margin-top: 10px;">
 			        	<div>

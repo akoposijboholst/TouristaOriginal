@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^api/authenticate', views.ApiAuthenticate, name='authenticate'),
     url(r'^api/create-user', views.CreateUser, name='create-user'),
     url(r'^api/create/travel/agency', views.CreateTravelAgency, name='create/travel/agency'),
-    url(r'^api/add-spot', views.AddSpot, name='add-spot'),
+    url(r'^api/add/spot', views.AddSpot, name='add/spot'),
     url(r'^api/create-package', views.CreatePackage, name='create-package'),
     url(r'^api/add-to-itinerary-details', views.AddSpotToPackage, name='add-to-itinerary-details'),
     url(r'^api/book-package', views.BookPackage, name='book-package'),
@@ -42,6 +42,13 @@ urlpatterns = [
     url(r'^api/add/qr/code', views.AddQRCode, name='add/qr/code'),
     url(r'^api/use/qr/code', views.UseQRCode, name='user/qr/code'),
     url(r'^api/end/tour', views.EndTour, name='end/tour'),
-    url(r'^api/pili', views.ChooseTourGuide, name='pili')
-    
+    url(r'^api/get/agency/package', views.GetAgencyPackage, name='get/agency/package'),
+    url(r'^api/get/agency/transactions', views.GetAgencyTransaction, name='api/get/agency/transactions'),
+    url(r'^api/get/all/spots', views.GetAllSpots, name='get/all/spots'),
+    url(r'^api/post/firebase/token', views.FirebaseInstance, name='post/firebase/token'),
+    url(r'^api/pili', views.ChooseTourGuide, name='pili'),
+    url(r'^api/update/package', views.UpdatePackage, name='api/update/package'),
+    url(r'^api/update/spots/package', views.UpdateSpotsPackage, name='api/update/package/spot'),
+    url(r'^api/confirm/agency', views.AcceptTravelRequest, name='api/confirm/agency'),
+    url(r'^api/delete/package', views.DeletePackage, name='api/delete/package')
 ]
