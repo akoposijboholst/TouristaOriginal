@@ -110,3 +110,11 @@ RETURN_TOURIST_TRANSACTION = [
 	'status',
 	'payment'
 ]
+
+AGENCY_ACCEPT = "Agency accepted your tour"
+AGENCY_DECLINE = "Agency declined your tour"
+END_TOUR = "Ended tour"
+
+CUSTOM = 'CUSTOM'
+NON_CUSTOM = 'NON-CUSTOM'
+TOUR_REQUEST = 'TOUR_REQUEST'

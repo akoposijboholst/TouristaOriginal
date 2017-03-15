@@ -46,6 +46,7 @@ urlpatterns = [
     url(r'^api/get/agency/package', touristapp.views.GetAgencyPackage, name='get/agency/package'),
     url(r'^api/get/agency/transactions', touristapp.views.GetAgencyTransaction, name='api/get/agency/transactions'),
     url(r'^api/end/tour', touristapp.views.EndTour, name='end/tour'),
+    url(r'^api/start/tour', touristapp.views.StartTour, name='end/tour'),
     url(r'^api/get/all/spots', touristapp.views.GetAllSpots, name='get/all/spots'),
     url(r'^api/post/firebase/token', touristapp.views.FirebaseInstance, name='post/firebase/token'),
     url(r'^api/pili', touristapp.views.ChooseTourGuide, name='pili'),

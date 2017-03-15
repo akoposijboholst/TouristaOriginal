@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^api/add/qr/code', views.AddQRCode, name='add/qr/code'),
     url(r'^api/use/qr/code', views.UseQRCode, name='user/qr/code'),
     url(r'^api/end/tour', views.EndTour, name='end/tour'),
+    url(r'^api/start/tour', views.StartTour, name='end/tour'),
     url(r'^api/get/agency/package', views.GetAgencyPackage, name='get/agency/package'),
     url(r'^api/get/agency/transactions', views.GetAgencyTransaction, name='api/get/agency/transactions'),
     url(r'^api/get/all/spots', views.GetAllSpots, name='get/all/spots'),
