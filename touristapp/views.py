@@ -966,7 +966,7 @@ def BookPackage(request):
 			paymentC = cursor.fetchone()
 			payment = float(paymentC[0]) - remainingBalance
 			insert_payments_data = (tourTransactionId, payement, reserveDate, remainingBalance)
-			print "kaabot"
+			print "wa"
 			cursor.execute(insert_payments, insert_payments_data)
 			print "Success: " + cursor
 		elif bookType == constants.CUSTOM:
@@ -986,11 +986,7 @@ def BookPackage(request):
 		cursor2.close()
 		return HttpResponse(e)
 	cnx.commit()
-	ret = {
-		"error": {},
-		"return": "200"
-	}
-	return HttpResponse(json.dumps(ret), content_type="application/json")
+	return HttpResponse("200")
 
 def GetBookedPackages(request):
 	userId = request.GET.get(constants.USER[0])
@@ -1011,7 +1007,6 @@ def GetBookedPackages(request):
 	cursor3 = cnx.cursor(buffered=True)
 
 	data = []
-	ret = {}
 
 	try:
 		cursor.execute(get_booked_packages_statement)
@@ -1065,6 +1060,7 @@ def GetBookedPackages(request):
 
 			cursorC.execute("SELECT MAX(payment_date) FROM PAYMENTS_TABLE WHERE tourTransactionid = '" + tourTransactionId + "'")
 			result = cursorC.fetchone()
+			if result[0] == None
 			remainingBalance = float(result[0])
 
 			data.append({
@@ -1085,7 +1081,7 @@ def GetBookedPackages(request):
 				"agencyName": agencyName,
 				"guideDetails": guide_details,
 				"type": constants.NON_CUSTOM,
-				"remainingBalance": 0,
+				"remainingBalance": remainingBalance,
 				"photoPath": dns + "/api/get/image/package/" + travelAgencyId + "/" + photoFileName
 			})
 
@@ -1182,13 +1178,8 @@ def GetBookedPackages(request):
 		cursorC.close()
 		return HttpResponse(e)
 
-	ret = {
-		"error": {},
-		"return": data
-	}
-
 	cnx.commt()
-	return HttpResponse(json.dumps(ret), content_type="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 @csrf_exempt
 def ConfirmByTourGuide(request):
@@ -1285,7 +1276,6 @@ def GetBestTours(request):
 	cursor = cnx.cursor(buffered=True)
 	cursorB = cnx.cursor(buffered=True)
 	data = []
-	ret = {}
 
 	try:
 		cursor.execute(view_tourpackages_statement)
@@ -1332,14 +1322,10 @@ def GetBestTours(request):
 		cursorB.close()
 		return HttpResponse(e)
 
-	ret = {
-		"error": {},
-		"return": data
-	}
 	cursor.close()
 	cursorB.close()
 	cnx.commit()
-	return HttpResponse(json.dumps(ret), content_type="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 	# return HttpResponse('200')
 
 def GetFeaturedSpots(request):
@@ -1348,7 +1334,6 @@ def GetFeaturedSpots(request):
 
 	cursor = cnx.cursor(buffered=True)
 	data = []
-	ret = {}
 
 	try:
 		cursor.execute(view_spots_statement)
@@ -1379,12 +1364,8 @@ def GetFeaturedSpots(request):
 		return HttpResponse(e)
 
 	#kulang pani para makuha jud..
-	ret = {
-		"error": {},
-		"return": data
-	}
 
-	return HttpResponse(json.dumps(ret), content_type="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def GetTGPackage(request):
 	guideId = request.GET.get('guideId')
@@ -1737,13 +1718,8 @@ def CreateCustomPackage(request):
 		cursor.close()
 		return HttpResponse(e)
 
-	ret = {
-		"error": {},
-		"success": "200"
-	}
-
 	cnx.commit()
-	return HttpResponse(json.dumps(ret), content_type="application/json")
+	return HttpResponse('200')
 
 def GetCustomPackages(request):
 	userId = request.GET.get('userId')
