@@ -19,7 +19,7 @@ import forms
 import base64
 import thread
 
-dns = 'http://192.168.254.101:8000'
+dns = 'http://192.168.254.100:8000'
 cnx = mysql.connector.connect(user='akoposijboholst', password='HouseBoholst16', host='localhost', port="3306", database='tourista')
 if cnx.is_connected():
 	print "Successfully connected to MySql!"
@@ -29,7 +29,7 @@ def index(request):
 	return render(request, 'home.html')
 
 def Login(request):
-	return render(request, 'login-failed.html')
+	return render(request, 'landingpageadmin.html')
 
 def SignIn(request):
 	return render(request, 'signin.html')
@@ -137,8 +137,6 @@ def ApiAuthenticate(request):
 		statement = "SELECT * FROM USER WHERE facebookId = '" + facebookId  + "';"
 
 	elif userType == 'TA':
-		# email = request.POST.get('email')
-		# password = request.POST.get('password')
 		statement = "SELECT * FROM travel_agency WHERE email = '" + email  + "' and password = '" + password + "';"
 
 	cursor = cnx.cursor(buffered=True)
@@ -146,12 +144,17 @@ def ApiAuthenticate(request):
 	cursorC = cnx.cursor(buffered=True)
 	cursorD = cnx.cursor(buffered=True)
 	data = {}
+	error = {}
+	return_data = {}
+
+	alert = 0
 
 	try:
 		cursor.execute(statement)
 
 		if userType == 'TG':
 			for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId, citizenship, photoUrl, guideId, ratings, PROFILE_DESCRIPTION, streetAddress, city, country, zipCode, province, priority, numAccept, numRequest, referal_points, verified) in cursor:
+				alert = 1
 				card = {}
 				cursorC.execute("SELECT accountNumber, cvv, expirationDate, creditCardEmail, creditCardPassword FROM card_details where userId='" + userId + "'")
 				print "Shanyl Authenticate1"
@@ -227,9 +230,15 @@ def ApiAuthenticate(request):
 				for (guideId, language) in cursorB:
 					data["language"].append(language)
 
+			return_data = {
+				"error": {},
+				"return": data
+			}
+
 		elif userType == 'T':
 			card = {}
 			for (userId, firstName, lastName, birthday, EMAIL, contactNumber, facebookId, citizenship, photoUrl, firebaseInstanceIdToken, referal_points, travelFund) in cursor:
+				alert = 1
 				cursorC.execute("SELECT accountNumber, cvv, expirationDate, creditCardEmail, creditCardPassword FROM card_details where userId='" + userId + "'")
 				for (accountNumber, cvv, expirationDate, creditCardEmail, creditCardPassword) in cursorC:
 					card = {
@@ -255,8 +264,25 @@ def ApiAuthenticate(request):
 				}
 				print data
 
+			if alert == 0:
+
+				error =  {
+					"code": "404",
+					"error_message": "Email and password did not match!"
+				}
+
+				return_data = {
+					"error": error,
+					"data": {}
+				}
+			elif alert == 1:
+				# return_data = {
+				# "error": {},
+				# "return": data
+				# }
+				return_data = data
+
 		elif userType == 'TA':
-			alert = 0
 			for (travelAgencyId, agencyName, streetAddress, city, country, zipCode, contactNumber, email, password, firebaseInstanceIdToken) in cursor:
 				alert = 1
 				data = {
@@ -269,29 +295,45 @@ def ApiAuthenticate(request):
 					'contactNumber': contactNumber,
 					'email': email
 				}
+
 			if alert == 0:
-				data = "Email and password did not match!"
 
-			print data
+				error =  {
+					"code": "404",
+					"error_message": "Email and password did not match!"
+				}
 
+				return_data = {
+					"error": error,
+					"data": {}
+				}
+			elif alert == 1:
+				return_data = {
+				"error": {},
+				"return": data
+				}
 			# return HttpResponseRedirect('http://localhost:8000/landingpage')
 
 			# return render(request, 'landingpage.html', {'data':json.dumps(data)})
 
-			cursor.close()
-			cursorB.close()
-			cursorC.close()
-			cursorD.close()
 
-			return HttpResponse(json.dumps(data), content_type="application/json")
+		cursor.close()
+		cursorB.close()
+		cursorC.close()
+		cursorD.close()
+		cnx.commit()
 
-
-	
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "ApiAuthenticate: " + e
+		cursor.close()
+		cursorB.close()
+		cursorC.close()
+		cursorD.close()
+		cnx.commit()
 		return HttpResponse(e)
-	
-	cnx.commit()
-	return HttpResponse(json.dumps(data), content_type="application/json")
+
+	return HttpResponse(json.dumps(return_data), content_type="application/json")
+
 
 @csrf_exempt
 def AddSpot(request):
@@ -328,8 +370,11 @@ def AddSpot(request):
 		print cursor
 
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		cursor.close()
+		print "AddSpot: " + e
 		return HttpResponse(e)
 
+	cursor.close()
 	cnx.commit()
 	return HttpResponse('200')
 
@@ -347,9 +392,9 @@ def CreatePackage(request):
 	numOfTGNeeded = int(package[constants.PACKAGE[4]])
 	description = package[constants.PACKAGE[6]]
 	minPeople = int(package[constants.PACKAGE[9]])
-	imagebase64 = package["image"]
-	# category = package["category"]
-	duration = int(package["numOfDays"])
+	imagebase64 = package["imagebase64"]
+	duration = int(package["duration"])
+	TGPayment = float(package["TGPayment"])
 
 	imgdata = base64.b64decode(imagebase64+"==")
 	print 1
@@ -361,7 +406,7 @@ def CreatePackage(request):
 
 	print 3
 	cursor = cnx.cursor(buffered=True)
-	new_package = (packageId, packageName, travelAgencyId, payment, numOfTGNeeded, 0.0, description, duration, 0, minPeople, file, "FAMILY TOURS", 0)
+	new_package = (packageId, packageName, travelAgencyId, payment, numOfTGNeeded, 0.0, description, duration, 0, minPeople, file, "FAMILY TOURS", TGPayment)
 	new_package_statement = ("INSERT INTO TOUR_PACKAGE " +
 							"VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 							)
@@ -371,7 +416,7 @@ def CreatePackage(request):
 		cursor.execute(new_package_statement, new_package)
 		print cursor
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
-		print e 
+		print "CreatePackage: " + e 
 		return HttpResponse(e)
 
 	cnx.commit()
@@ -380,28 +425,34 @@ def CreatePackage(request):
 @csrf_exempt
 def AddSpotToPackage(request):
 	package = json.loads(request.body)
-	packageType = package['type']
+
 	table = ""
-	if packageType == constants.NON_CUSTOM:
-		table = "ITINERARY_DETAILS"
-	elif packageType == constants.CUSTOM:
-		table = "CUSTOM_ITINERARY_DETAILS"
+	packageType = ""
+	packageId = ""
+	spotId = ""
+	startTime = ""
+	description = ""
+	endTime = ""
 
 	print package
-	cursor = cnx.cursor(buffered=True)
-	packageId = package[constants.ITINERARY_DETAILS[0]]
-	spotId = package[constants.ITINERARY_DETAILS[1]]
-	startTime = package[constants.ITINERARY_DETAILS[2]]
-	description = package[constants.ITINERARY_DETAILS[3]]
-	endTime = package[constants.ITINERARY_DETAILS[5]]
-	cursor.execute("SELECT COUNT(*) FROM " + table + " WHERE packageId = '" + packageId + "'")
 
-	# add_to_package = (packageId, spotId, startTime, description, int(num), endTime)
-	# add_to_package_statement = ("INSERT INTO "+table+" "+
-	# 								"("+constants.ITINERARY_DETAILS[0]+','+constants.ITINERARY_DETAILS[1]+','+constants.ITINERARY_DETAILS[2]+','+
-	# 								""+constants.ITINERARY_DETAILS[3]+constants.ITINERARY_DETAILS[4]+','+constants.ITINERARY_DETAILS[5]+')'
-	# 								"VALUES (%s,%s,%s,%s,%s,%s)"
-	# 								)
+	try:
+		packageType = package['type']
+		packageId = package[constants.ITINERARY_DETAILS[0]]
+		spotId = package[constants.ITINERARY_DETAILS[1]]
+		startTime = package[constants.ITINERARY_DETAILS[2]]
+		description = package[constants.ITINERARY_DETAILS[3]]
+		endTime = package[constants.ITINERARY_DETAILS[5]]
+		if packageType == constants.NON_CUSTOM:
+			table = "ITINERARY_DETAILS"
+		elif packageType == constants.CUSTOM:
+			table = "CUSTOM_ITINERARY_DETAILS"
+	except Exception as inst:
+		print inst
+		return HttpResponse(inst);
+
+
+	cursor = cnx.cursor(buffered=True)
 	try:
 		cursor.execute("SELECT COUNT(*) FROM " + table + " WHERE packageId = '" + packageId + "'")
 		num = cursor.fetchone()
@@ -413,6 +464,7 @@ def AddSpotToPackage(request):
 									)
 		cursor.execute(add_to_package_statement, add_to_package)
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "AddSpotToPackage: " + e
 		return HttpResponse(e)
 
 	cnx.commit()
@@ -422,22 +474,40 @@ def AddSpotToPackage(request):
 def EditCustomPackage(request):
 	package = json.loads(request.body)
 
-	packageId = package['packageId']
-	userId = package['userId']
-	payment = package['payment']
-	numOfTGNeeded = package['numOfTGNeeded']
-	numOfSpots = package['numOfSpots']
-	packageName = package[constants.PACKAGE[1]]
-	description = package["description"]
-	numOfDays = package["numOfDays"]
-	itinerary_details = package["itinerary_details"]
+	packageId = ""
+	userId = ""
+	payment = ""
+	numOfTGNeeded = ""
+	numOfSpots = ""
+	packageName = ""
+	description = ""
+	numOfDays = ""
+	itinerary_details = []
+
+
+	try:
+		packageId = package['packageId']
+		userId = package['userId']
+		payment = package['payment']
+		numOfTGNeeded = package['numOfTGNeeded']
+		numOfSpots = package['numOfSpots']
+		packageName = package[constants.PACKAGE[1]]
+		description = package["description"]
+		numOfDays = package["numOfDays"]
+		itinerary_details = package["itinerary_details"]
+	except Exception as inst:
+		print inst
+		return HttpResponse(inst);
+
 	cursor = cnx.cursor(buffered=True)
+
 	delete_package_statement = ("DELETE FROM CUSTOM_PACKAGE where packageId = '" + packageId + "'")
 	new_package = (packageId, userId,payment,numOfTGNeeded,numOfSpots, packageName, description, numOfDays, packageId + ".png")
 	new_package_statement = ("INSERT INTO CUSTOM_PACKAGE" +
 							"(packageId, userId, payment, numOfTGNeeded, numOfSpots, packageName, description, numOfDays, fileName)"+
-							"VALUES (%s,%s,%s,%s,%s, %s, %s, %s)"
+							"VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 							)
+	print "yeeehaaaa"
 
 	try:
 		cursor.execute(delete_package_statement)
@@ -452,14 +522,19 @@ def EditCustomPackage(request):
 
 			add_to_package = (packageId, spotId, startTime, description2, chronology, endTime)
 			add_to_package_statement = ("INSERT INTO CUSTOM_ITINERARY_DETAILS "+
-											"("+constants.ITINERARY_DETAILS[0]+','+constants.ITINERARY_DETAILS[1]+','+constants.ITINERARY_DETAILS[2]+','
-											""+constants.ITINERARY_DETAILS[3]+','+constants.ITINERARY_DETAILS[4]+','+constants.ITINERARY_DETAILS[5]+')'
+											"(packageId, spotId, startTime, DESCRIPTION, chronology, endTime)"
 											"VALUES (%s,%s,%s,%s,%s,%s)"
 											)
 			cursor.execute(add_to_package_statement, add_to_package)
 
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "EditCustomPackage: " + e
 		return HttpResponse(e)
+
+	except Exception as inst:
+		print "EditCustomPackage: " + inst
+		return HttpResponse(inst);
+
 
 	cnx.commit()
 	return HttpResponse('200')
@@ -476,6 +551,8 @@ def DeleteSpot(request):
 		cursor.execute(delete_spot_package_statement)
 
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "DeleteSpot: " + e
+		cursor.close()
 		return HttpResponse(e)
 
 	cnx.commit()
@@ -548,11 +625,15 @@ def CreateUser(request):
 
 		cnx.commit()
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
-		print "juheue"
+		cursor.close()
+		cursorB.close()
+		print "CreateUser: " + e
 		return HttpResponse(e)
 
 	except Exception as inst:
-		print inst
+		cursor.close()
+		cursorB.close()
+		print "CreateUser: " + inst
 		return HttpResponse(inst);
 
 	data = {}
@@ -656,7 +737,8 @@ def PostFriends(request):
 			cursor.execute(insert_friend, value)
 			print 1
 		except (MySQLdb.Error, MySQLdb.Warning) as e:
-			print obj
+			print "PostFriends: " + e
+			cursor.close()
 			return HttpResponse(e)
 
 	cnx.commit()
@@ -688,12 +770,16 @@ def AddRatingToTourGuideAndPackage(request):
 		try:
 			cursor.execute(insert_guide_rating, value)
 		except (MySQLdb.Error, MySQLdb.Warning) as e:
+			print "AddRatingToTourGuideAndPackage: " + e 
+			cursor.close()
 			return HttpResponse(e)
 
 	insert_package_rating = "UPDATE TOUR_PACKAGE_RATING SET rating = " + package_rating['rating']
 	try:
 		cursor.execute(insert_package_rating)
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "AddRatingToTourGuideAndPackage: " + e 
+		cursor.close()
 		return HttpResponse(e)
 
 	cnx.commit()
@@ -720,7 +806,10 @@ def AddCommentToTransaction(request):
 	try:
 		cursor.execute(statement, data)
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "AddCommentToTransaction: " + e
+		cursor.close()
 		return HttpResponse(e)
+
 	cnx.commit()
 	return HttpResponse("200")
 
@@ -759,6 +848,8 @@ def CreateTravelAgency(request):
 		try:
 			cursor.execute(insert_new_travel_agency_statement, new_travel_agency)
 		except (MySQLdb.Error, MySQLdb.Warning) as e:
+			print "CreateTravelAgency: " + e
+			cursor.close()
 			return HttpResponse(e)
 
 		cnx.commit()
@@ -786,7 +877,10 @@ def BookPackage(request):
 	status = bookpackage["status"]
 	bookType = bookpackage['type'] # CUSTOM OR NON-CUSTOM
 	language = bookpackage['language']
+	if language == "null":
+		language = "English"
 	referal_points = float(bookpackage['referal_points'])
+	remainingBalance = float(bookpackage['remainingBalance'])
 
 	cursor = cnx.cursor(buffered=True)
 	insert_new_tourtransaction_statement = ""
@@ -865,11 +959,31 @@ def BookPackage(request):
 				notifType: "REQUEST"
 			}
 			NotifyTourGuide(cursor.fetchone(), "REQUEST", message, data)
+			insert_payments = "INSERT INTO PAYMENTS_TABLE VALUES(%s,%s,%s,%s);"
+			# insert_payments_data = (tourTransactionId, remainingBalance)
+			query = "SELECT payment FROM TOUR_PACKAGE tp, TOUR_TRANSACTION tt WHERE tt.packageId = tp.packageId and tt.tourTransactionId = '" + tourTransactionId + "';"
+			cursor.execute(query)
+			paymentC = cursor.fetchone()
+			payment = float(paymentC[0]) - remainingBalance
+			insert_payments_data = (tourTransactionId, payement, reserveDate, remainingBalance)
+			print "kaabot"
+			cursor.execute(insert_payments, insert_payments_data)
+			print "Success: " + cursor
 		elif bookType == constants.CUSTOM:
 			cursor2.execute("SELECT firebaseInstanceIdToken FROM TOUR_PACKAGE where packageId = '" + packageId + "'")
 			firebaseInstanceIdToken = cursor2.fetchone()
 			NotifyAgency(firebaseInstanceIdToken, "TOUR_REQUEST", "Somebody would like to take your tour!")
+			insert_payments = "INSERT INTO PAYMENTS_TABLE_CUSTOM VALUES(%s,%s,%s,%s);"
+			query = "SELECT payment FROM TOUR_PACKAGE tp, TOUR_TRANSACTION tt WHERE tt.packageId = tp.packageId and tt.tourTransactionId = '" + tourTransactionId + "';"
+			cursor.execute(query)
+			paymentC = cursor.fetchone()
+			payment = float(paymentC[0]) - remainingBalance
+			insert_payments_data = (tourTransactionId, payement, reserveDate, remainingBalance)
+			cursor.execute(insert_payments, insert_payments_data)
 	except (MySQLdb.Error,MySQLdb.Warning) as e:
+		print "BookPackage: " + e
+		cursor.close()
+		cursor2.close()
 		return HttpResponse(e)
 	cnx.commit()
 	return HttpResponse("200")
@@ -893,6 +1007,7 @@ def GetBookedPackages(request):
 	cursor3 = cnx.cursor(buffered=True)
 
 	data = []
+	ret = {}
 
 	try:
 		cursor.execute(get_booked_packages_statement)
@@ -944,6 +1059,10 @@ def GetBookedPackages(request):
 					'photoFileName': dns+"/api/get/image/spot/"+spotId+"/"+photoPath
 				})
 
+			cursorC.execute("SELECT MAX(payment_date) FROM PAYMENTS_TABLE WHERE tourTransactionid = '" + tourTransactionId + "'")
+			result = cursorC.fetchone()
+			remainingBalance = float(result[0])
+
 			data.append({
 				constants.RETURN_TOURIST_TRANSACTION[0]: userId,
 				constants.RETURN_TOURIST_TRANSACTION[1]: tourTransactionId,
@@ -962,6 +1081,7 @@ def GetBookedPackages(request):
 				"agencyName": agencyName,
 				"guideDetails": guide_details,
 				"type": constants.NON_CUSTOM,
+				"remainingBalance": 0,
 				"photoPath": dns + "/api/get/image/package/" + travelAgencyId + "/" + photoFileName
 			})
 
@@ -1039,11 +1159,32 @@ def GetBookedPackages(request):
 				# "photoPath": dns + "/api/get/image/package/" + travelAgencyId + "/" + photoFileName
 			})
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "GetBookedPackages: " + e
+		cursor1.close()
+		cursor2.close()
+		cursor3.close()
+		cursor.close()
+		cursorB.close()
+		cursorC.close()
 		return HttpResponse(e)
 
-	cursor.close()
-	cursorB.close()
-	return HttpResponse(json.dumps(data), content_type="application/json")
+	except Exception as e:
+		print "GetBookedPackages: " + e
+		cursor1.close()
+		cursor2.close()
+		cursor3.close()
+		cursor.close()
+		cursorB.close()
+		cursorC.close()
+		return HttpResponse(e)
+
+	ret = {
+		"error": {},
+		"return": data
+	}
+
+	cnx.commt()
+	return HttpResponse(json.dumps(ret), content_type="application/json")
 
 @csrf_exempt
 def ConfirmByTourGuide(request):
@@ -1126,6 +1267,9 @@ def ConfirmByTourGuide(request):
 			NotifyTourist(user, notifType, MESSAGE, data)
 
 	except (MySQLdb.Error,MySQLdb.Warning) as e:
+		print "ConfirmByTourGuide: " + e
+		cursor.close()
+		cursor2.close()
 		return HttpResponse(e)
 
 	cnx.commit()
@@ -1137,10 +1281,11 @@ def GetBestTours(request):
 	cursor = cnx.cursor(buffered=True)
 	cursorB = cnx.cursor(buffered=True)
 	data = []
+	ret = {}
 
 	try:
 		cursor.execute(view_tourpackages_statement)
-		for (packageID, packageName, description, payment, rating, numOfSpots, duration, travelAgencyId, agencyName, photoFileName, minPeople) in cursor:
+		for (packageID, packageName, description, payment, rating, numOfSpots, duration, travelAgencyId, agencyName, photoFileName, minPeople, availability) in cursor:
 			view_spot_itinerary_statement = "select * from return_spot_itinerary where packageId = '" + packageID + "' order by chronology asc"
 			cursorB.execute(view_spot_itinerary_statement)
 
@@ -1174,15 +1319,23 @@ def GetBestTours(request):
 				constants.RETURN_TOUR_PACKAGES[8]: agencyName,
 				constants.RETURN_TOUR_PACKAGES[9]: spot_data,
 				"photoPath": dns + "/api/get/image/package/" + travelAgencyId + "/" + photoFileName,
-				"minPeople": minPeople
+				"minPeople": minPeople,
+				"availability": availability
 			})
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "GetBestTours: " + e
+		cursor.close()
+		cursorB.close()
 		return HttpResponse(e)
 
+	ret = {
+		"error": {},
+		"return": data
+	}
 	cursor.close()
 	cursorB.close()
 	cnx.commit()
-	return HttpResponse(json.dumps(data), content_type="application/json")
+	return HttpResponse(json.dumps(ret), content_type="application/json")
 	# return HttpResponse('200')
 
 def GetFeaturedSpots(request):
@@ -1191,6 +1344,7 @@ def GetFeaturedSpots(request):
 
 	cursor = cnx.cursor(buffered=True)
 	data = []
+	ret = {}
 
 	try:
 		cursor.execute(view_spots_statement)
@@ -1216,11 +1370,17 @@ def GetFeaturedSpots(request):
 					'province': province
 					})
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "GetFeaturedSpots: " + e
+		cursor.close()
 		return HttpResponse(e)
 
 	#kulang pani para makuha jud..
+	ret = {
+		"error": {},
+		"return": data
+	}
 
-	return HttpResponse(json.dumps(data), content_type="application/json")
+	return HttpResponse(json.dumps(ret), content_type="application/json")
 
 def GetTGPackage(request):
 	guideId = request.GET.get('guideId')
@@ -1322,6 +1482,9 @@ def GetTGPackage(request):
 			})
 
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "GetTGPackage: " + e
+		cursor.close()
+		cursorB.close()
 		return HttpResponse(e)
 
 	cursor.close()
@@ -1426,6 +1589,9 @@ def GetAgencyTransaction(request):
 		# 	})
 
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "AgencyTransaction: " + e
+		cursor.close()
+		cursorB.close()
 		return HttpResponse(e)
 
 	cursor.close()
@@ -1500,9 +1666,11 @@ def GetFriendsActivity(request):
 				})
 
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "GetFriendsActivity: " + e
+		cursor.close()
+		new_cursor.close()
+		cursorB.close()
 		return HttpResponse(e)
-
-		print data
 	
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
@@ -1561,6 +1729,8 @@ def CreateCustomPackage(request):
 		print "pumasok si custom3"
 
 	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		print "CreateCustomPackage: " + e
+		cursor.close()
 		return HttpResponse(e)
 
 	cnx.commit()
@@ -2137,7 +2307,7 @@ def GetAgencyPackage(request):
 
 	try:
 		cursor.execute(statement)
-		for (packageId, packageName, travelAgencyId, payment, numOfTGNeeded, rating, description, duration, numOfSpots, minPeople, photoFileName, category, tgpayment) in cursor:
+		for (packageId, packageName, travelAgencyId, payment, numOfTGNeeded, rating, description, duration, numOfSpots, minPeople, photoFileName, category, tgpayment, availability) in cursor:
 			view_spot_itinerary_statement = "select * from return_spot_itinerary where packageId = '" + packageId + "' order by chronology asc"
 			cursorB.execute(view_spot_itinerary_statement)
 
@@ -2173,7 +2343,8 @@ def GetAgencyPackage(request):
 				"photoPath": dns + "/api/get/image/package/" + travelAgencyId + "/" + photoFileName, 
 				"category": category,
 				"spots": spot_data,
-				"tgpayment": str(tgpayment)
+				"tgpayment": str(tgpayment),
+				"availability": availability
 				})
 
 		return HttpResponse(json.dumps(data), content_type="application/json")

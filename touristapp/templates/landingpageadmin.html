@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+	<title>Admin Page</title>
+
+  	<meta charset="UTF-8">
+	<link rel="shortcut icon" href="{% static 'assets/images/tourista_logo.png' %}">
+	
+	<link rel="stylesheet" media="screen" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,700">
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+	<!-- <link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}"> -->
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- Custom styles for our template -->
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap-theme.css' %}" media="screen">
+
+	<link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/css/bootstrap.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/css/full-slider.css' %}">
+
+	<style>
+       #map {
+        height: 400px;
+        width: 100%;
+       }
+    </style>
+
+</head>
+<body>
+
+	<script type="text/javascript" src="{% static 'assets/js/jquery-3.1.1.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+	<form  name="addSpotForm" action="" method="POST" enctype="application/json">
+		<input type="text" name="spotname" class="input-login" placeholder="SPOTNAME">
+		<input type="text" name="spotStreet" class="input-login" placeholder="STREETADDRESS">
+		<input type="text" name="spotCity" class="input-login" placeholder="CITY">
+		<input type="text" name="spotCountry" class="input-login" placeholder="COUNTRY">
+		<input type="text" name="spotNumber" class="input-login" placeholder="NUMBER">
+		<input type="text" name="spotNumber" class="input-login" placeholder="NUMBER">
+		<input type="text" name="spotDescription" class="input-login" placeholder="DESCRIPTION">
+		<input type="text" name="spotClosing" class="input-login" placeholder="CLOSINGTIME"> 
+		
+	</form>
+
+    <div id="map"></div>
+    <script>
+      function initMap() {
+        var uluru = {lat: -25.363, lng: 131.044};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: uluru
+        });
+        var marker = new google.maps.Marker({
+          position: uluru,
+          map: map
+        });
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA8o414F7OT8_Ay0J1uArryfKBy6lRxyME&callback=initMap">
+    </script>
+
+</body>
+</html>
