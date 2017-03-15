@@ -986,7 +986,11 @@ def BookPackage(request):
 		cursor2.close()
 		return HttpResponse(e)
 	cnx.commit()
-	return HttpResponse("200")
+	ret = {
+		"error": {},
+		"return": "200"
+	}
+	return HttpResponse(json.dumps(ret), content_type="application/json")
 
 def GetBookedPackages(request):
 	userId = request.GET.get(constants.USER[0])
@@ -1733,8 +1737,13 @@ def CreateCustomPackage(request):
 		cursor.close()
 		return HttpResponse(e)
 
+	ret = {
+		"error": {},
+		"success": "200"
+	}
+
 	cnx.commit()
-	return HttpResponse('200')
+	return HttpResponse(json.dumps(ret), content_type="application/json")
 
 def GetCustomPackages(request):
 	userId = request.GET.get('userId')
